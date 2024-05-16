@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # My App
 
 This is a simple React application that uses Airtable API.
@@ -28,3 +29,7 @@ Start the development server with `npm start`.
 - `Task.css`: Styles for the Task component.
 
 Please note that this is a basic example and you should modify it according to your project's needs.
+=======
+# auto_kanban
+Task Management system that auto-prioritizes tasks into a simple kan ban task board
+>>>>>>> origin/main
