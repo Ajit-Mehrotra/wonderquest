@@ -1,9 +1,10 @@
 {
-  "name": "my-app",
+  "name": "auto_kanban",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
+    "preinstall": "npx node@14.18.3",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
@@ -32,8 +33,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "devDependencies": {
-    "@babel/plugin-proposal-private-property-in-object": "^7.21.11"
   }
 }
