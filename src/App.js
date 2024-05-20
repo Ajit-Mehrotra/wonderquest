@@ -15,7 +15,7 @@ function App() {
 
   // useEffect hook to fetch tasks from an API when the component first mounts
   useEffect(() => {
-    fetch(process.env.REACT_APP_API_URL, {
+    fetch('https://api.airtable.com/v0/appVXFJJlBFs4nDeq/Design%20Projects?filterByFormula=OR(%7BStatus%7D%3D%27Priority%20Backlog%27,%7BStatus%7D%3D%27Today%27,%7BStatus%7D%3D%27Done%20Done%27)&sort%5B0%5D%5Bfield%5D=Ranking%20Final&sort%5B0%5D%5Bdirection%5D=desc', {
       headers: {
         'Authorization': `Bearer ${process.env.REACT_APP_API_KEY}` // Include API key in the request header
       }
