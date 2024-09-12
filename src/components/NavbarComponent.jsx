@@ -19,7 +19,10 @@ function NavbarComponent({isLoggedIn, handleLogout}) {
               </>
             )}
             {isLoggedIn && (
+               <>
               <Nav.Link as={Link} to="/dashboard" className="nav-link-custom">Dashboard</Nav.Link>
+              <Nav.Link as={Link} to="/add-task" className="nav-link-custom">Add Task</Nav.Link>
+              </>
             )}
           </Nav>
           {isLoggedIn && (
