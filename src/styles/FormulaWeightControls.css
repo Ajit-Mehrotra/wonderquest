@@ -1,0 +1,21 @@
+/* src/styles/FormulaWeightControls.css */
+
+.formula-weight-controls {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.formula-weight-controls h5 {
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.formula-weight-controls .form-group {
+  margin-bottom: 0;
+}
+
+.formula-weight-controls .form-control {
+  max-width: 100px;
+  margin: 0 auto;
+}

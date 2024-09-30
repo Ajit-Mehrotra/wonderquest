@@ -1,20 +1,19 @@
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut} from "firebase/auth";
-import { auth, db } from "../firebase/firebase";
-import { doc, setDoc } from "firebase/firestore";
+import {
+  signInWithEmailAndPassword,
+  onAuthStateChanged,
+  signOut,
+  signInWithPopup,
+  signInWithRedirect,
+} from "firebase/auth";
+import { auth, db, googleProvider } from "../firebase/firebase";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import { createUserProfile } from "./api";
 
-export const firebaseCreateUser = (email, password)=>{
-  return createUserWithEmailAndPassword(auth, email, password)
-  .then((userCredential) => {
-    // Handle successful signup
-    return userCredential.user;
-  })
-  .catch((error) => {
-    // Handle errors
-    const errorCode = error.code;
-    const errorMessage = error.message;
-    throw new Error(`${errorCode}: ${errorMessage}`);
+export const observeAuthState = (callback) => {
+  return onAuthStateChanged(auth, (user) => {
+    callback(user);
   });
-}
+};
 
 export const firebaseLogOnUser = (email, password) => {
   return signInWithEmailAndPassword(auth, email, password)
@@ -23,47 +22,40 @@ export const firebaseLogOnUser = (email, password) => {
       return userCredential.user;
     })
     .catch((error) => {
-      // Handle errors
-      const errorCode = error.code;
-      const errorMessage = error.message;
-      throw new Error(`${errorCode}: ${errorMessage}`);
+      throw error;
     });
 };
 
 export const firebaseSignOut = () => {
   return signOut(auth)
-  .then(() => {
-    // Handle successful sign out
-  }).catch((error) => {
-    // Handle errors
-    const errorCode = error.code;
-    const errorMessage = error.message;
-    throw new Error(`${errorCode}: ${errorMessage}`);
-  });
-  ;
-};
-
-export const observeAuthState = (callback) => {
-  return onAuthStateChanged(auth, (user) => {
-    callback(user);
-  });
-};
-
-// Function to create a user profile in Firestore
-export const createUserProfile = async (user) => {
-  try {
-    // Create a reference to the user's document in the "users" collection
-    const userRef = doc(db, "users", user.uid);
-
-    // Set the user profile data in Firestore
-    await setDoc(userRef, {
-      uid: user.uid,
-      email: user.email,
-      displayName: user.displayName || "", // Include display name
-      createdAt: new Date(),
+    .then(() => {
+      // Handle successful sign out
+    })
+    .catch((error) => {
+      throw error;
     });
-    console.log("User profile created successfully");
+};
+
+// Function for Google Sign-In using Popup
+export const signInWithGoogle = async () => {
+  try {
+    const result = await signInWithPopup(auth, googleProvider);
+    const user = result.user;
+    console.log("Google User:", user);
+    // You can handle additional actions like saving user info in Firestore
+    const { uid, email, displayName } = user;
+    await createUserProfile({ email, displayName });
   } catch (error) {
-    console.error("Error creating user profile:", error);
+    console.error("Error during Google Sign-In:", error);
+  }
+};
+
+// Alternative method using redirect
+export const signInWithGoogleRedirect = async () => {
+  try {
+    await signInWithRedirect(auth, googleProvider);
+    // Handle post-sign-in logic after redirect
+  } catch (error) {
+    console.error("Error during Google Sign-In with redirect:", error);
   }
 };

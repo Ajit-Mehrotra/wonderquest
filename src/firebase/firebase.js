@@ -1,32 +1,37 @@
-
 import { initializeApp } from "firebase/app";
-import { getAuth} from "firebase/auth";
+import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+import { GoogleAuthProvider } from "firebase/auth";
 
-
+const API_KEY = process.env.REACT_APP_FIREBASE_AUTH_API_KEY;
+const AUTH_DOMAIN = process.env.REACT_APP_FIREBASE_AUTH_DOMAIN;
+const PROJECT_ID = process.env.REACT_APP_FIREBASE_AUTH_PROJECT_ID;
+const STORAGE_BUCKET = process.env.REACT_APP_FIREBASE_AUTH_STORAGE_BUCKET;
+const MESSAGING_SENDER_ID =
+  process.env.REACT_APP_FIREBASE_AUTH_MESSAGING_SENDER_ID;
+const APP_ID = process.env.REACT_APP_FIREBASE_AUTH_APP_ID;
+const MEASUREMENT_ID = process.env.REACT_APP_FIREBASE_AUTH_MEASUREMENT_ID;
 
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-    apiKey: "AIzaSyBUXzuHWGi4vHXzN2CDSvqn6iJmPagCCvw",
-    authDomain: "auto-kanban.firebaseapp.com",
-    projectId: "auto-kanban",
-    storageBucket: "auto-kanban.appspot.com",
-    messagingSenderId: "769788129508",
-    appId: "1:769788129508:web:1237f78c8d61131110bcf1",
-    measurementId: "G-V0Y7K6K190"
-  };
-  
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  
-  // Initialize Firebase Authentication and get a reference to the service
+  apiKey: `${API_KEY}`,
+  authDomain: `${AUTH_DOMAIN}`,
+  projectId: `${PROJECT_ID}`,
+  storageBucket: `${STORAGE_BUCKET}`,
+  messagingSenderId: `${MESSAGING_SENDER_ID}`,
+  appId: `${APP_ID}`,
+  measurementId: `${MEASUREMENT_ID}`,
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+
+// Initialize Firebase Authentication and get a reference to the service
 export const auth = getAuth(app);
+
 export const db = getFirestore(app);
 
-  
-  
-  
+// Get Providers
+export const googleProvider = new GoogleAuthProvider();
