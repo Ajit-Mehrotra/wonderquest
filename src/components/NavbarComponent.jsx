@@ -44,8 +44,8 @@ function NavbarComponent({ isLoggedIn, name, handleLogout, loadingName }) {
                 <Nav.Link as={Link} to="/dashboard" className="nav-link-custom">
                   Dashboard
                 </Nav.Link>
-                <Nav.Link as={Link} to="/add-task" className="nav-link-custom">
-                  Add Task
+                <Nav.Link as={Link} to="/settings" className="nav-link-custom">
+                  Settings
                 </Nav.Link>
               </>
             )}

@@ -51,6 +51,7 @@ export const fetchUserProfile = async (uid) => {
  * @returns {Promise<Array>} - A promise that resolves to an array of tasks.
  */
 export const fetchTasksFromApi = async (userId) => {
+  console.log("Hit API to Fetch Tasks from Backend:");
   try {
     const user = auth.currentUser;
     const token = await user.getIdToken();
@@ -71,13 +72,40 @@ export const fetchTasksFromApi = async (userId) => {
   }
 };
 
-/**
- * Update the status or details of a specific task.
- * @param {string} taskId - The ID of the task to be updated.
- * @param {string} userId - The ID of the user who owns the task.
- * @param {Object} updates - The updates to apply to the task.
- * @returns {Promise<Object>} - A promise that resolves when the task has been updated.
- */
+export const reorderTasks = async ({
+  userId,
+  taskId,
+  targetPrevTaskId,
+  targetNextTaskId,
+  status,
+}) => {
+  try {
+    const user = auth.currentUser;
+    const token = await user.getIdToken();
+
+    const response = await fetch(`${backendUrl}/api/tasks/reorder/${taskId}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        userId,
+        targetPrevTaskId,
+        targetNextTaskId,
+        status,
+      }),
+    });
+    if (!response.ok) {
+      throw new Error("Failed to update task");
+    }
+    return response.json();
+  } catch (error) {
+    console.error("Error updating task:", error);
+    throw error; // Rethrow to handle errors in calling components
+  }
+};
+
 export const updateTaskStatus = async (taskId, userId, updates) => {
   try {
     const user = auth.currentUser;
@@ -153,5 +181,29 @@ export const addTask = async ({ userId, task }) => {
   } catch (error) {
     console.error("Error adding task:", error);
     throw error; // Rethrow to handle errors in calling components
+  }
+};
+
+export const updateUserWeights = async ({ userId, weights }) => {
+  try {
+    const user = auth.currentUser;
+    const token = await user.getIdToken();
+
+    const response = await fetch(`${backendUrl}/api/users/${userId}/weights`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(weights),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to update user weights and tasks");
+    }
+    return response.json();
+  } catch (error) {
+    console.error("Error updating weights and tasks:", error);
+    throw error;
   }
 };

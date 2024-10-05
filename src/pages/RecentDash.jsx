@@ -25,13 +25,8 @@ const Dashboard = ({ formulaWeights }) => {
   const traverseLinkedList = (taskMap, headTask) => {
     const orderedTasks = [];
     let currentTask = headTask;
-    const visitedTasks = new Set(); // Track visited tasks to avoid loops
+
     while (currentTask) {
-      if (visitedTasks.has(currentTask.id)) {
-        console.error("Infinite loop detected in linked list traversal");
-        break;
-      }
-      visitedTasks.add(currentTask.id);
       orderedTasks.push(currentTask);
       currentTask = currentTask.nextTaskId
         ? taskMap[currentTask.nextTaskId]
@@ -42,15 +37,9 @@ const Dashboard = ({ formulaWeights }) => {
   };
 
   const fetchTasks = async () => {
-    console.log("in fetchTasks");
     if (!user) return;
     try {
-      console.log("User exists. Trying to fetch tasks from API");
       const fetchedTasks = await fetchTasksFromApi(user.uid);
-      console.log(
-        "fetched Tasks from API",
-        JSON.stringify(fetchedTasks, null, 2)
-      );
       const newTasks = { "Priority Backlog": [], Today: [], "Done Done": [] };
 
       const taskMap = {};
@@ -60,50 +49,28 @@ const Dashboard = ({ formulaWeights }) => {
         "Done Done": null,
       };
 
-      console.log("About to enter loop");
       fetchedTasks.forEach((task) => {
-        console.log("In loop");
         taskMap[task.id] = task;
 
         if (task.prevTaskId === null) {
           headTasks[task.status] = task;
         }
       });
-      console.log("Out of first loop");
 
       Object.keys(headTasks).forEach((column) => {
-        console.log("In second loop");
         if (headTasks[column]) {
           newTasks[column] = traverseLinkedList(taskMap, headTasks[column]);
         }
       });
 
-      console.log("Setting new tasks");
       setTasks(newTasks);
-      console.log("Tasks are set");
     } catch (error) {
       console.error("Error fetching tasks:", error);
     }
   };
 
-  // relates to race-case with fetching data asynchronously in hook.
   useEffect(() => {
-    let isMounted = true; // track if the component is still mounted
-    const fetchData = async () => {
-      try {
-        if (isMounted) {
-          await fetchTasks();
-        }
-      } catch (error) {
-        console.error("Error fetching tasks:", error);
-      }
-    };
-
-    fetchData();
-
-    return () => {
-      isMounted = false; // cleanup function to mark component as unmounted
-    };
+    fetchTasks();
   }, [user, formulaWeights]);
 
   useEffect(() => {
@@ -118,8 +85,6 @@ const Dashboard = ({ formulaWeights }) => {
 
   const handleDragEnd = async (result) => {
     const { destination, source, draggableId } = result;
-
-    // No change if dropped in the same place
     if (
       !destination ||
       (destination.droppableId === source.droppableId &&
@@ -128,44 +93,27 @@ const Dashboard = ({ formulaWeights }) => {
       return;
     }
 
-    // Extract current state of tasks
     const start = [...tasks[source.droppableId]];
     const finish =
       destination.droppableId === source.droppableId
         ? start
         : [...tasks[destination.droppableId]];
 
-    // Remove the moved task from the source
     const [movedTask] = start.splice(source.index, 1);
-    // Insert the moved task into the destination
     finish.splice(destination.index, 0, movedTask);
 
-    // Update task status to the new column
-    movedTask.status = destination.droppableId;
-
-    // Determine prevTaskId and nextTaskId in the new position
     let targetPrevTaskId = null;
     let targetNextTaskId = null;
 
     if (destination.index < finish.length - 1) {
-      targetPrevTaskId = finish[destination.index + 1].id; // Previous task
+      targetPrevTaskId = finish[destination.index + 1].id;
     }
     if (destination.index > 0) {
-      targetNextTaskId = finish[destination.index - 1].id; // Next task
+      targetNextTaskId = finish[destination.index - 1].id;
     }
 
-    // Debugging information
-    console.log("Being moved on frontend", draggableId);
-    console.log(
-      "TargetPrevTaskID: ",
-      targetPrevTaskId,
-      "TargetNextTaskID: ",
-      targetNextTaskId,
-      "Status: ",
-      movedTask.status
-    );
+    movedTask.status = destination.droppableId;
 
-    // Send the update to the backend
     try {
       await reorderTasks({
         userId: user.uid,
@@ -175,11 +123,21 @@ const Dashboard = ({ formulaWeights }) => {
         status: movedTask.status,
       });
 
-      // Fetch the updated tasks from the backend after the change
-      await fetchTasks();
+      if (targetPrevTaskId) {
+        finish[destination.index + 1].nextTaskId = draggableId;
+      }
+      if (targetNextTaskId) {
+        finish[destination.index - 1].prevTaskId = draggableId;
+      }
     } catch (error) {
       console.error("Failed to update task:", error);
     }
+
+    setTasks({
+      ...tasks,
+      [source.droppableId]: start,
+      [destination.droppableId]: finish,
+    });
   };
 
   const handleDeleteTask = async (taskId, status) => {

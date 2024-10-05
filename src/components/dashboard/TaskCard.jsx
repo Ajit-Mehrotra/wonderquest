@@ -31,7 +31,6 @@ function TaskCard({ provided, user, task, setTasks, onDeleteTask }) {
     }
   };
 
-
   return (
     <div>
       <Card
