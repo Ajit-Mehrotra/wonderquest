@@ -1,7 +1,7 @@
 import React from "react";
 import { Droppable, Draggable } from "react-beautiful-dnd";
-import { Card, Form } from "react-bootstrap";
-import TaskCard from "./TaskCard";
+import { Form } from "react-bootstrap";
+import TaskCard from "./task/TaskCard";
 
 function TaskColumn({
   columnId,

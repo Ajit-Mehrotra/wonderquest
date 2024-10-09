@@ -12,8 +12,7 @@ import {
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
-import OldDashboard from "./pages/OldDashboard";
-import NavbarComponent from "./components/NavbarComponent";
+import NavbarComponent from "./components/Navbar";
 import Home from "./pages/Home";
 import { observeAuthState, firebaseSignOut } from "./services/auth";
 import { fetchUserProfile } from "services/api";
@@ -102,6 +101,7 @@ function App() {
               element={
                 user ? (
                   <Settings
+                    user={user}
                     formulaWeights={formulaWeights}
                     setFormulaWeights={setFormulaWeights}
                   />
@@ -110,8 +110,6 @@ function App() {
                 )
               }
             />
-
-            <Route path="/old-dashboard" element={<OldDashboard />} />
           </Routes>
         </div>
       </Container>

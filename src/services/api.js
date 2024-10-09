@@ -1,5 +1,4 @@
 import { auth } from "../firebase/firebase";
-import { useNavigate } from "react-router-dom";
 
 const backendUrl = process.env.REACT_APP_BACKEND_SERVER_URL;
 

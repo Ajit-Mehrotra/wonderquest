@@ -5,24 +5,11 @@ import { auth } from "../firebase/firebase";
 import { updateUserWeights } from "../services/api";
 import "../styles/Settings.css";
 
-const Settings = ({ formulaWeights, setFormulaWeights }) => {
-  const [user, setUser] = useState(null);
+const Settings = ({ user, formulaWeights, setFormulaWeights }) => {
   const [weights, setWeights] = useState({ ...formulaWeights });
-  const [notification, setNotification] = useState(null); // State for the notification
+  const [notification, setNotification] = useState(null);
+  let isMounted = true;
   const navigate = useNavigate();
-  let isMounted = true; // Track whether the component is mounted
-
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((firebaseUser) => {
-      if (isMounted) {
-        setUser(firebaseUser);
-      }
-    });
-    return () => {
-      isMounted = false; // Cleanup to mark that the component has unmounted
-      unsubscribe();
-    };
-  }, []);
 
   const handleWeightChange = (e, weightType) => {
     setWeights({
@@ -32,41 +19,34 @@ const Settings = ({ formulaWeights, setFormulaWeights }) => {
   };
 
   const handleSaveChanges = async () => {
-    if (user) {
-      try {
-        // Update weights in the frontend state
-        setFormulaWeights(weights);
+    try {
+      // Update weights in the frontend state
+      setFormulaWeights(weights);
 
-        // Send PATCH request to update weights in the database and reorder tasks
-        await updateUserWeights({ userId: user.uid, weights });
+      // Send PATCH request to update weights in the database and reorder tasks
+      await updateUserWeights({ userId: user.uid, weights });
 
-        // Set a success notification
-        if (isMounted) {
-          setNotification({
-            type: "success",
-            message: "Changes saved successfully, and task priorities updated!",
-          });
-        }
-
-        // Redirect to dashboard after a short delay
-        setTimeout(() => {
-          if (isMounted) {
-            navigate("/dashboard");
-          }
-        }, 1500);
-      } catch (error) {
-        // Set an error notification
-        if (isMounted) {
-          setNotification({
-            type: "danger",
-            message: "Failed to save changes. Please try again.",
-          });
-        }
+      // Set a success notification
+      if (isMounted) {
+        setNotification({
+          type: "success",
+          message: "Changes saved successfully, and task priorities updated!",
+        });
       }
-    } else {
+
+      // Redirect to dashboard after a short delay
+      setTimeout(() => {
+        if (isMounted) {
+          navigate("/dashboard");
+        }
+      }, 1000);
+    } catch (error) {
       // Set an error notification
       if (isMounted) {
-        setNotification({ type: "danger", message: "User not authenticated!" });
+        setNotification({
+          type: "danger",
+          message: "Failed to save changes. Please try again.",
+        });
       }
     }
 

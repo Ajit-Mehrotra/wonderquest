@@ -3,11 +3,10 @@ import { Row, Col, Button, Modal } from "react-bootstrap";
 import { DragDropContext } from "react-beautiful-dnd";
 import { useNavigate } from "react-router-dom";
 import { auth } from "../firebase/firebase";
-import TaskColumn from "../components/dashboard/TaskColumn";
-import FormulaWeightControls from "../components/FormulaWeightControls";
+import TaskColumn from "../components/kanban-board/TaskColumn";
 import { fetchTasksFromApi, deleteTask, reorderTasks } from "../services/api";
 import { FaPlus } from "react-icons/fa";
-import AddTask from "./AddTask";
+import AddTask from "../components/kanban-board/task/AddTask";
 import "../styles/Dashboard.css";
 
 const Dashboard = ({ formulaWeights }) => {
@@ -51,36 +50,56 @@ const Dashboard = ({ formulaWeights }) => {
         "fetched Tasks from API",
         JSON.stringify(fetchedTasks, null, 2)
       );
+
+      // Initialize task buckets (columns)
       const newTasks = { "Priority Backlog": [], Today: [], "Done Done": [] };
 
+      // For efficiency, create Task map to store references to tasks by ID for linked list traversal
       const taskMap = {};
+
       let headTasks = {
         "Priority Backlog": null,
         Today: null,
         "Done Done": null,
       };
 
-      console.log("About to enter loop");
       fetchedTasks.forEach((task) => {
-        console.log("In loop");
-        taskMap[task.id] = task;
+        let taskStatus = task.status;
 
+        // Add task to the appropriate column by status, if doesn't exist, create it.
+        if (!newTasks[taskStatus]) {
+          newTasks[taskStatus] = [];
+          headTasks[taskStatus] = null; //not sure if this is right. Meant to set up the find head task for each column
+        }
+        if (!taskMap[taskStatus]) {
+          taskMap[taskStatus] = {};
+        }
+
+        taskMap[taskStatus] = { ...taskMap[taskStatus], [task.id]: task };
+
+        // finds the head task for each column
         if (task.prevTaskId === null) {
-          headTasks[task.status] = task;
+          headTasks[taskStatus] = task;
         }
       });
-      console.log("Out of first loop");
+      console.log("DONE ITERATION");
+      console.log(JSON.stringify(taskMap, null, 4));
 
       Object.keys(headTasks).forEach((column) => {
-        console.log("In second loop");
+        console.log("Iterating through head tasks");
+        console.log("Column:", column, ", Head Task:", headTasks[column]);
         if (headTasks[column]) {
-          newTasks[column] = traverseLinkedList(taskMap, headTasks[column]);
+          newTasks[column] = traverseLinkedList(
+            taskMap[column],
+            headTasks[column]
+          );
         }
       });
 
       console.log("Setting new tasks");
       setTasks(newTasks);
       console.log("Tasks are set");
+      console.log(newTasks);
     } catch (error) {
       console.error("Error fetching tasks:", error);
     }

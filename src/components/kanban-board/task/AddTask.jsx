@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Form, Button, Row, Col, Card } from "react-bootstrap";
-import { auth } from "../firebase/firebase";
-import { addTask } from "../services/api";
+import { auth } from "../../../firebase/firebase";
+import { addTask } from "../../../services/api";
 
 const urgencyOptions = [
   { label: "5 - Must be done today", value: 5 },

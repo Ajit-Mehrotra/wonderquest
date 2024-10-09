@@ -207,42 +207,58 @@ app.patch("/api/users/:userId/weights", async (req, res) => {
       };
     });
 
+    // Initialize task columns
+    const newTasks = { "Priority Backlog": [], Today: [], "Done Done": [] };
+
     // Calculate new priority for each task and update `ignorePriority` to false
     const updatedTasks = tasks.map((task) => {
       const newPriority =
         task.urgency.value * urgencyWeight +
         task.value.value * valueWeight +
         task.size.value * sizeWeight;
-
-      return {
+      const updatedTask = {
         ...task,
         priority: newPriority,
         ignorePriority: false,
       };
-    });
-
-    // Sort tasks based on the new priority
-    updatedTasks.sort((a, b) => a.priority - b.priority);
-
-    // Update tasks in the database and re-link the linked list
-    let previousTaskId = null;
-
-    for (const task of updatedTasks) {
-      const taskUpdates = {
-        priority: task.priority,
-        ignorePriority: false,
-        prevTaskId: previousTaskId,
-        nextTaskId: null,
-      };
-
-      if (previousTaskId) {
-        await tasksRef.doc(previousTaskId).update({
-          nextTaskId: task.id,
-        });
+      const taskStatus = updatedTask.status;
+      // Add task to the appropriate column by status, if doesn't exist, create it.
+      if (!newTasks[taskStatus]) {
+        newTasks[taskStatus] = [];
       }
 
-      await tasksRef.doc(task.id).update(taskUpdates);
-      previousTaskId = task.id;
+      newTasks[taskStatus].push(updatedTask);
+
+      return updatedTask;
+    });
+
+    console.log(JSON.stringify(updatedTasks, null, 4));
+    console.log("--------------------");
+    console.log(JSON.stringify(newTasks, null, 4));
+
+    for (let column in newTasks) {
+      if (newTasks.hasOwnProperty(column)) {
+        const tasksArray = newTasks[column];
+
+        tasksArray.sort((a, b) => a.priority - b.priority);
+        for (let i = 0; i < tasksArray.length; i++) {
+          if (i === 0) {
+            tasksArray[i].prevTaskId = null;
+          } else {
+            tasksArray[i].prevTaskId = tasksArray[i - 1].id;
+          }
+          if (i === tasksArray.length - 1) {
+            tasksArray[i].nextTaskId = null;
+          } else {
+            tasksArray[i].nextTaskId = tasksArray[i + 1].id;
+          }
+          await tasksRef.doc(tasksArray[i].id).update({
+            ...tasksArray[i],
+            prevTaskId: tasksArray[i].prevTaskId,
+            nextTaskId: tasksArray[i].nextTaskId,
+          });
+        }
+      }
     }
 
     res.status(200).json({ message: "Weights and tasks updated successfully" });

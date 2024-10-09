@@ -5,8 +5,7 @@ import {
   signInWithPopup,
   signInWithRedirect,
 } from "firebase/auth";
-import { auth, db, googleProvider } from "../firebase/firebase";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { auth, googleProvider } from "../firebase/firebase";
 import { createUserProfile } from "./api";
 
 export const observeAuthState = (callback) => {
