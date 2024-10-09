@@ -1,17 +1,18 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Droppable, Draggable } from "react-beautiful-dnd";
 import { Form } from "react-bootstrap";
 import TaskCard from "./task/TaskCard";
+import { TaskContext } from "context/TaskContext";
 
 function TaskColumn({
   columnId,
-  user,
-  tasks,
-  setTasks,
   showDoneDone,
   toggleShowDoneDone,
   onDeleteTask,
 }) {
+  const { tasks } = useContext(TaskContext);
+  const columnTasks = tasks[columnId];
+
   return (
     <div>
       <h2>
@@ -44,15 +45,13 @@ function TaskColumn({
               snapshot.isDraggingOver ? "droppable-over" : ""
             }`}
           >
-            {tasks.map(
+            {columnTasks.map(
               (task, index) =>
                 (columnId !== "Done Done" || showDoneDone) && (
                   <Draggable key={task.id} draggableId={task.id} index={index}>
                     {(provided) => (
                       <TaskCard
                         provided={provided}
-                        user={user}
-                        setTasks={setTasks}
                         task={task}
                         onDeleteTask={onDeleteTask}
                       />

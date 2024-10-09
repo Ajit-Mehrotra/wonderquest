@@ -13,10 +13,9 @@ import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
 import NavbarComponent from "./components/Navbar";
 import Home from "./pages/Home";
-import { observeAuthState, firebaseSignOut } from "./services/auth";
-import { fetchUserProfile } from "services/api";
 import Settings from "pages/Settings";
 import { AuthContext, AuthProvider } from "context/AuthContext";
+import { TaskProvider } from "context/TaskContext";
 
 // is able to access the context because Protected Route is a child of the UserProvider function below.
 function UserRoute({ children }) {
@@ -69,7 +68,9 @@ function App() {
                 path="/dashboard"
                 element={
                   <UserRoute>
-                    <Dashboard formulaWeights={formulaWeights} />
+                    <TaskProvider formulaWeights={formulaWeights}>
+                      <Dashboard />
+                    </TaskProvider>
                   </UserRoute>
                 }
               />

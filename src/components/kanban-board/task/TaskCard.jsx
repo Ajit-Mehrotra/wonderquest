@@ -1,16 +1,21 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { Card, Button, Badge } from "react-bootstrap";
 import { FaCaretDown, FaCaretLeft, FaEdit, FaTrash } from "react-icons/fa";
 import EditTaskModal from "./EditTaskModal";
 import { updateTaskStatus } from "services/api";
 import DeleteConfirmationModal from "./DeleteConfirmationModal";
+import { AuthContext } from "context/AuthContext";
+import { TaskContext } from "context/TaskContext";
 const sortTasksByPriority = (taskList) => {
   return taskList.sort((a, b) => b.priority - a.priority);
 };
-function TaskCard({ provided, user, task, setTasks, onDeleteTask }) {
+function TaskCard({ provided, task, onDeleteTask }) {
   const [expanded, setExpanded] = useState(false);
   const [beingEdited, setBeingEdited] = useState(false);
   const [beingDeleted, setBeingDeleted] = useState(false);
+
+  const user = useContext(AuthContext);
+  const { setTasks } = useContext(TaskContext);
 
   const onSave = async (editingTask, setEditingTask) => {
     try {
