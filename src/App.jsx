@@ -1,7 +1,6 @@
-// Import necessary libraries and components
-import React, { useState, useEffect } from "react"; // React and hooks for state management and side effects
+import React, { useState, useEffect, useContext } from "react";
 
-import { Container } from "react-bootstrap"; // UI components from react-bootstrap
+import { Container } from "react-bootstrap";
 
 import {
   BrowserRouter as Router,
@@ -17,103 +16,79 @@ import Home from "./pages/Home";
 import { observeAuthState, firebaseSignOut } from "./services/auth";
 import { fetchUserProfile } from "services/api";
 import Settings from "pages/Settings";
+import { AuthContext, AuthProvider } from "context/AuthContext";
+
+// is able to access the context because Protected Route is a child of the UserProvider function below.
+function UserRoute({ children }) {
+  const { user } = useContext(AuthContext);
+  if (!user) {
+    return <Navigate to="/login" />;
+  }
+  return children;
+}
+
+function VisitorRoute({ children }) {
+  const { user } = useContext(AuthContext);
+  if (user) {
+    return <Navigate to="/dashboard" />;
+  }
+  return children;
+}
 
 function App() {
-  const [user, setUser] = useState(null);
-  const [name, setName] = useState(null);
-  const [loadingName, setLoadingName] = useState(false);
   const [formulaWeights, setFormulaWeights] = useState({
     urgencyWeight: 100,
     valueWeight: 60,
     sizeWeight: 40,
   });
-
-  useEffect(() => {
-    // Use Firebase to observe authentication state
-    const unsubscribe = observeAuthState(setUser);
-
-    return () => unsubscribe();
-  }, []);
-
-  useEffect(() => {
-    let isMounted = false;
-    if (user) {
-      const fetchUserName = async () => {
-        try {
-          setLoadingName(true);
-          const profile = await fetchUserProfile(user.uid);
-          // console.log(profile);
-          if (!isMounted) {
-            setName(profile.displayName);
-            setLoadingName(false);
-          }
-        } catch (error) {
-          console.error("Error fetching user profile:", error);
-          setLoadingName(false);
-        }
-      };
-      fetchUserName();
-    }
-
-    return () => {
-      isMounted = false;
-      setName(null);
-      setLoadingName(false);
-    };
-  }, [user]);
-  const handleLogout = async () => {
-    try {
-      await firebaseSignOut();
-      setUser(null); // Update state after successful sign-out
-      console.log("Logged out successfully");
-    } catch (error) {
-      console.error("Logout error:", error);
-    }
-  };
-
-  // Render the component
   return (
-    <Router>
-      <Container>
-        <div className="container text-center my-4">
-          <NavbarComponent
-            isLoggedIn={user}
-            name={name}
-            handleLogout={handleLogout}
-            loadingName={loadingName}
-          />
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route
-              path="/dashboard"
-              element={
-                user ? (
-                  <Dashboard formulaWeights={formulaWeights} />
-                ) : (
-                  <Navigate to="/login" />
-                )
-              }
-            />
-            <Route
-              path="/settings"
-              element={
-                user ? (
-                  <Settings
-                    user={user}
-                    formulaWeights={formulaWeights}
-                    setFormulaWeights={setFormulaWeights}
-                  />
-                ) : (
-                  <Navigate to="/login" />
-                )
-              }
-            />
-          </Routes>
-        </div>
-      </Container>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <Container>
+          <div className="container text-center my-4">
+            <NavbarComponent />
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route
+                path="/login"
+                element={
+                  <VisitorRoute>
+                    <Login />
+                  </VisitorRoute>
+                }
+              />
+              <Route
+                path="/signup"
+                element={
+                  <VisitorRoute>
+                    <Signup />
+                  </VisitorRoute>
+                }
+              />
+              <Route
+                path="/dashboard"
+                element={
+                  <UserRoute>
+                    <Dashboard formulaWeights={formulaWeights} />
+                  </UserRoute>
+                }
+              />
+              <Route
+                path="/settings"
+                element={
+                  <UserRoute>
+                    <Settings
+                      formulaWeights={formulaWeights}
+                      setFormulaWeights={setFormulaWeights}
+                    />
+                  </UserRoute>
+                }
+              />
+            </Routes>
+          </div>
+        </Container>
+      </Router>
+    </AuthProvider>
   );
 }
 

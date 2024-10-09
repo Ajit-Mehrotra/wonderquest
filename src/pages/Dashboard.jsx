@@ -1,13 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Row, Col, Button, Modal } from "react-bootstrap";
 import { DragDropContext } from "react-beautiful-dnd";
-import { useNavigate } from "react-router-dom";
-import { auth } from "../firebase/firebase";
 import TaskColumn from "../components/kanban-board/TaskColumn";
 import { fetchTasksFromApi, deleteTask, reorderTasks } from "../services/api";
 import { FaPlus } from "react-icons/fa";
 import AddTask from "../components/kanban-board/task/AddTask";
 import "../styles/Dashboard.css";
+import { AuthContext } from "context/AuthContext";
 
 const Dashboard = ({ formulaWeights }) => {
   const [tasks, setTasks] = useState({
@@ -15,11 +14,9 @@ const Dashboard = ({ formulaWeights }) => {
     Today: [],
     "Done Done": [],
   });
-  const [user, setUser] = useState(null);
+  const { user } = useContext(AuthContext);
   const [showAddTaskModal, setShowAddTaskModal] = useState(false);
   const [showDoneDone, setShowDoneDone] = useState(true);
-
-  const navigate = useNavigate();
 
   const traverseLinkedList = (taskMap, headTask) => {
     const orderedTasks = [];
@@ -41,15 +38,11 @@ const Dashboard = ({ formulaWeights }) => {
   };
 
   const fetchTasks = async () => {
-    console.log("in fetchTasks");
     if (!user) return;
     try {
-      console.log("User exists. Trying to fetch tasks from API");
+      console.debug("User exists. Trying to fetch tasks from API");
       const fetchedTasks = await fetchTasksFromApi(user.uid);
-      console.log(
-        "fetched Tasks from API",
-        JSON.stringify(fetchedTasks, null, 2)
-      );
+      console.debug("Fetched Tasks from API");
 
       // Initialize task buckets (columns)
       const newTasks = { "Priority Backlog": [], Today: [], "Done Done": [] };
@@ -82,12 +75,8 @@ const Dashboard = ({ formulaWeights }) => {
           headTasks[taskStatus] = task;
         }
       });
-      console.log("DONE ITERATION");
-      console.log(JSON.stringify(taskMap, null, 4));
 
       Object.keys(headTasks).forEach((column) => {
-        console.log("Iterating through head tasks");
-        console.log("Column:", column, ", Head Task:", headTasks[column]);
         if (headTasks[column]) {
           newTasks[column] = traverseLinkedList(
             taskMap[column],
@@ -96,9 +85,9 @@ const Dashboard = ({ formulaWeights }) => {
         }
       });
 
-      console.log("Setting new tasks");
+      console.log("Updating tasks");
       setTasks(newTasks);
-      console.log("Tasks are set");
+      console.log("Tasks Updated");
       console.log(newTasks);
     } catch (error) {
       console.error("Error fetching tasks:", error);
@@ -124,16 +113,6 @@ const Dashboard = ({ formulaWeights }) => {
       isMounted = false; // cleanup function to mark component as unmounted
     };
   }, [user, formulaWeights]);
-
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((firebaseUser) => {
-      setUser(firebaseUser);
-      if (!firebaseUser) {
-        navigate("/login");
-      }
-    });
-    return unsubscribe;
-  }, [navigate]);
 
   const handleDragEnd = async (result) => {
     const { destination, source, draggableId } = result;
@@ -173,17 +152,6 @@ const Dashboard = ({ formulaWeights }) => {
       targetNextTaskId = finish[destination.index - 1].id; // Next task
     }
 
-    // Debugging information
-    console.log("Being moved on frontend", draggableId);
-    console.log(
-      "TargetPrevTaskID: ",
-      targetPrevTaskId,
-      "TargetNextTaskID: ",
-      targetNextTaskId,
-      "Status: ",
-      movedTask.status
-    );
-
     // Send the update to the backend
     try {
       await reorderTasks({
@@ -197,7 +165,7 @@ const Dashboard = ({ formulaWeights }) => {
       // Fetch the updated tasks from the backend after the change
       await fetchTasks();
     } catch (error) {
-      console.error("Failed to update task:", error);
+      console.error("Failed to update and move task:", error);
     }
   };
 

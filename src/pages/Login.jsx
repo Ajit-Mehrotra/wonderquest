@@ -1,23 +1,10 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from "react";
 import { firebaseLogOnUser, signInWithGoogle } from "../services/auth";
-import { auth } from "../firebase/firebase";
 
 function Login() {
-  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-
-  // RACE CONDITION: Name in the Navbar may not be updated but redirects to dashboard if user is already logged in (needs to check both).
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
-      if (firebaseUser) {
-        navigate("/dashboard"); // Redirect to dashboard if logged in
-      }
-    });
-    return unsubscribe;
-  }, [navigate]);
 
   const getFriendlyErrorMessage = (errorCode) => {
     const errorMessages = {
@@ -38,7 +25,7 @@ function Login() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
-      const user = await firebaseLogOnUser(email, password);
+      await firebaseLogOnUser(email, password);
 
       console.debug("Logged in");
     } catch (error) {

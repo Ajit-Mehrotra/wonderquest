@@ -39,14 +39,7 @@ function AddTask({ setShowAddTaskModal, fetchTasks }) {
     ignorePriority: false,
   });
 
-  const [user, setUser] = useState(null);
-
-  React.useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((firebaseUser) => {
-      setUser(firebaseUser);
-    });
-    return unsubscribe;
-  }, []);
+  const [user] = useState(null);
 
   const handleRadioChange = (e, fieldName, options) => {
     const selectedValue = Number(e.target.value);

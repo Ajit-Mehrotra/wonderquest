@@ -1,10 +1,24 @@
-import React, { useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import { Container, Navbar, Nav, Button, Spinner } from "react-bootstrap"; // UI components from react-bootstrap
 import { Link } from "react-router-dom";
 import "../styles/Navbar.css";
+import { AuthContext } from "context/AuthContext";
+import { firebaseSignOut } from "services/auth";
+import { useNavigate } from "react-router-dom";
 
-function NavbarComponent({ isLoggedIn, name, handleLogout, loadingName }) {
-  const user = isLoggedIn;
+function NavbarComponent() {
+  const { user, setUser } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await firebaseSignOut();
+      setUser(null);
+      navigate("/login");
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  };
 
   return (
     <Navbar expand="lg" className="custom-navbar">
@@ -12,24 +26,13 @@ function NavbarComponent({ isLoggedIn, name, handleLogout, loadingName }) {
       {/* Custom styling */}
       <Container>
         <Navbar.Brand as={Link} to="/" className="brand-name">
-          {loadingName ? (
-            // Display a spinner while loading
-            <Spinner animation="border" role="status" size="sm">
-              <span className="visually-hidden">Loading...</span>
-            </Spinner>
-          ) : name ? (
-            // Display the user's name if available
-            name
-          ) : (
-            // Default brand name
-            "Erun's Kanban"
-          )}
+          Auto-Kanban
         </Navbar.Brand>{" "}
         {/* Website Name */}
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav" className="justify-content-end">
           <Nav>
-            {!isLoggedIn && ( // Conditionally render Login and Sign Up links
+            {!user && ( // Conditionally render Login and Sign Up links
               <>
                 <Nav.Link as={Link} to="/login" className="nav-link-custom">
                   Login
@@ -39,7 +42,7 @@ function NavbarComponent({ isLoggedIn, name, handleLogout, loadingName }) {
                 </Nav.Link>
               </>
             )}
-            {isLoggedIn && (
+            {user && (
               <>
                 <Nav.Link as={Link} to="/dashboard" className="nav-link-custom">
                   Dashboard
@@ -50,7 +53,7 @@ function NavbarComponent({ isLoggedIn, name, handleLogout, loadingName }) {
               </>
             )}
           </Nav>
-          {isLoggedIn && (
+          {user && (
             <Button
               variant="outline-primary"
               className="custom-logout"

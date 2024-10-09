@@ -1,6 +1,4 @@
-// src/Signup.js
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, {  useState } from "react";
 import { auth } from "../firebase/firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { signInWithGoogle } from "services/auth";
@@ -11,18 +9,7 @@ function Signup() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const navigate = useNavigate();
   const backendUrl = process.env.REACT_APP_BACKEND_SERVER_URL;
-
-  // Listen for authentication state changes
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((firebaseUser) => {
-      if (firebaseUser) {
-        navigate("/dashboard"); // Redirect to dashboard if logged in
-      }
-    });
-    return unsubscribe;
-  }, [navigate]);
 
   const validateEmail = (email) => {
     // Regular expression for validating an email

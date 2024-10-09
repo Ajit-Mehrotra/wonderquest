@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Container, Form, Button, Row, Col, Alert } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { auth } from "../firebase/firebase";
 import { updateUserWeights } from "../services/api";
 import "../styles/Settings.css";
+import { AuthContext } from "context/AuthContext";
 
-const Settings = ({ user, formulaWeights, setFormulaWeights }) => {
+const Settings = ({ formulaWeights, setFormulaWeights }) => {
+  const { user } = useContext(AuthContext);
   const [weights, setWeights] = useState({ ...formulaWeights });
   const [notification, setNotification] = useState(null);
   let isMounted = true;
