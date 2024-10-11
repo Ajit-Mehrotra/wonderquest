@@ -1,8 +1,8 @@
 import React, { useState, useContext } from "react";
-import { Row, Col, } from "react-bootstrap";
+import { Row, Col } from "react-bootstrap";
 import { DragDropContext } from "react-beautiful-dnd";
 import TaskColumn from "../components/kanban-board/TaskColumn";
-import {  deleteTask, reorderTasks } from "../services/api";
+import { deleteTask, reorderTasks } from "../services/api";
 import "../styles/Dashboard.css";
 import { AuthContext } from "context/AuthContext";
 import { fetchTasks, TaskContext } from "context/TaskContext";
@@ -11,12 +11,11 @@ import AddTaskButtonWithModal from "../components/kanban-board/task/AddTaskButto
 const Dashboard = () => {
   const { user } = useContext(AuthContext);
   const { tasks, setTasks } = useContext(TaskContext);
-  const [showDoneDone, setShowDoneDone] = useState(true);
 
   const handleDragEnd = async (result) => {
     const { destination, source, draggableId } = result;
 
-    // No change if dropped in the same place
+    // Make no changes if dropped in the same place
     if (
       !destination ||
       (destination.droppableId === source.droppableId &&
@@ -25,16 +24,22 @@ const Dashboard = () => {
       return;
     }
 
+    const newTasks = { ...tasks };
     // Extract current state of tasks
+
+    //get source column's tasks before the dragging (current state of column)
     const start = [...tasks[source.droppableId]];
+
+    // get destination column's tasks before the dragging (current state of column)
     const finish =
       destination.droppableId === source.droppableId
         ? start
         : [...tasks[destination.droppableId]];
 
-    // Remove the moved task from the source
+    // Remove the moved task from its original spot and return it
     const [movedTask] = start.splice(source.index, 1);
-    // Insert the moved task into the destination
+
+    // Insert the moved task into its new destination
     finish.splice(destination.index, 0, movedTask);
 
     // Update task status to the new column
@@ -51,6 +56,27 @@ const Dashboard = () => {
       targetNextTaskId = finish[destination.index - 1].id; // Next task
     }
 
+    // This is here to make the UI load more optimistically. However, this may be overwritten by the fetchTasks API call later.
+    // Will be overwritten when tasks are moved to a different column. Backend will re-prioritize based on priority number and ignorePriority boolean.
+
+    // -- START -- might be overwritten:
+    movedTask.prevTaskId = targetPrevTaskId;
+    movedTask.nextTaskId = targetNextTaskId;
+
+    // Update neighboring tasks' references if necessary
+    if (targetPrevTaskId) {
+      finish[destination.index + 1].nextTaskId = movedTask.id;
+    }
+    if (targetNextTaskId) {
+      finish[destination.index - 1].prevTaskId = movedTask.id;
+    }
+
+    // Update the modified task columns
+    newTasks[source.droppableId] = start;
+    newTasks[destination.droppableId] = finish;
+    setTasks(newTasks);
+    // -- END --
+
     // Send the update to the backend
     try {
       await reorderTasks({
@@ -62,7 +88,7 @@ const Dashboard = () => {
       });
 
       // Fetch the updated tasks from the backend after the change
-      // await fetchTasks();
+      // NEEDED TO REFRESH THE ORDER OF THE TASKS!!
       await fetchTasks(user, setTasks);
     } catch (error) {
       console.error("Failed to update and move task:", error);
@@ -91,8 +117,7 @@ const Dashboard = () => {
             <Col key={columnId} md={4}>
               <TaskColumn
                 columnId={columnId}
-                showDoneDone={showDoneDone}
-                toggleShowDoneDone={() => setShowDoneDone(!showDoneDone)}
+                tasks={tasks[columnId] || []}
                 onDeleteTask={handleDeleteTask}
               />
             </Col>

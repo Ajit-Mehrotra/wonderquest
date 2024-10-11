@@ -20,6 +20,6 @@ export function AuthProvider({ children }) {
     </AuthContext.Provider>
   );
 }
-export const useUser = () => {
+export const useAuth = () => {
   return useContext(AuthContext);
 };

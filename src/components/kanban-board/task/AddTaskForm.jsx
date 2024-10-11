@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Form, Button, Row, Col, Card } from "react-bootstrap";
-import { auth } from "../../../firebase/firebase";
 import { addTask } from "../../../services/api";
 
 const urgencyOptions = [

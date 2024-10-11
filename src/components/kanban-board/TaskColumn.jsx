@@ -1,29 +1,16 @@
-import React, { useContext } from "react";
+import React, { memo, useContext, useState } from "react";
 import { Droppable, Draggable } from "react-beautiful-dnd";
 import { Form } from "react-bootstrap";
 import TaskCard from "./task/TaskCard";
-import { TaskContext } from "context/TaskContext";
+import "../../styles/KanbanBoard.css";
 
-function TaskColumn({
-  columnId,
-  showDoneDone,
-  toggleShowDoneDone,
-  onDeleteTask,
-}) {
-  const { tasks } = useContext(TaskContext);
-  const columnTasks = tasks[columnId];
+function TaskColumn({ columnId, tasks, onDeleteTask }) {
+  const [showDoneDone, setShowDoneDone] = useState(true);
 
   return (
     <div>
       <h2>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginTop: "40px",
-          }}
-        >
+        <div className="column-header">
           {columnId}
           {columnId === "Done Done" && (
             <Form.Check
@@ -31,7 +18,7 @@ function TaskColumn({
               id="done-done-toggle"
               label=""
               checked={showDoneDone}
-              onChange={toggleShowDoneDone}
+              onChange={() => setShowDoneDone(!showDoneDone)}
             />
           )}
         </div>
@@ -45,7 +32,7 @@ function TaskColumn({
               snapshot.isDraggingOver ? "droppable-over" : ""
             }`}
           >
-            {columnTasks.map(
+            {tasks.map(
               (task, index) =>
                 (columnId !== "Done Done" || showDoneDone) && (
                   <Draggable key={task.id} draggableId={task.id} index={index}>
@@ -67,4 +54,4 @@ function TaskColumn({
   );
 }
 
-export default TaskColumn;
+export default memo(TaskColumn);

@@ -1,15 +1,16 @@
 /* KanbanBoard.css */
 
-/* This is a placeholder for your styles. Replace with your own CSS rules. */
-
-.kanban-board {
-  /* Add styles for the kanban board here */
+.column-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 40px;
 }
 
-.kanban-board .column {
-  /* Add styles for each column of the kanban board here */
+.task-column {
+  /* Add any other existing styles here */
 }
 
-.kanban-board .task {
-  /* Add styles for each task in the kanban board here */
+.droppable-over {
+  /* Styles for when an item is being dragged over the column */
 }

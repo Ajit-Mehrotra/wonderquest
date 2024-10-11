@@ -3,7 +3,7 @@ import { auth } from "../firebase/firebase";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "context/AuthContext";
 
-// Un-used hook due to the VisitorRoute and UserRoute components in App.jsx.
+// Unused hook due to the VisitorRoute and UserRoute components in App.jsx.
 // Kept here just in case needed for future use.
 export const useAuthState = () => {
   const { user, setUser } = useContext(AuthContext);
