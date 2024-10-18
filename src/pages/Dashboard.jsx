@@ -1,5 +1,5 @@
-import React, { useState, useContext } from "react";
-import { Row, Col } from "react-bootstrap";
+import React, { useContext } from "react";
+import { Row, Col, Spinner, Button } from "react-bootstrap";
 import { DragDropContext } from "react-beautiful-dnd";
 import TaskColumn from "../components/kanban-board/TaskColumn";
 import { deleteTask, reorderTasks } from "../services/api";
@@ -9,7 +9,7 @@ import { fetchTasks, TaskContext } from "context/TaskContext";
 import AddTaskButtonWithModal from "../components/kanban-board/task/AddTaskButton";
 
 const Dashboard = () => {
-  const { user } = useContext(AuthContext);
+  const { user, authLoading } = useContext(AuthContext);
   const { tasks, setTasks } = useContext(TaskContext);
 
   const handleDragEnd = async (result) => {
@@ -108,6 +108,30 @@ const Dashboard = () => {
       console.error("Failed to delete task:", error);
     }
   };
+
+  if (authLoading) {
+    return (
+      <div className="loading-container">
+        <Spinner animation="border" variant="primary" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </Spinner>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="auth-message-container">
+        <div className="auth-message">
+          <h2>Please Log In</h2>
+          <p>You need to log in to access your dashboard.</p>
+          <Button variant="primary" href="/login">
+            Log In
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>

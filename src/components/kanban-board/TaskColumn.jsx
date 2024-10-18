@@ -1,8 +1,9 @@
-import React, { memo, useContext, useState } from "react";
+import React, { memo,  useState } from "react";
 import { Droppable, Draggable } from "react-beautiful-dnd";
 import { Form } from "react-bootstrap";
 import TaskCard from "./task/TaskCard";
-import "../../styles/KanbanBoard.css";
+import '../../styles/KanbanBoard.css';
+
 
 function TaskColumn({ columnId, tasks, onDeleteTask }) {
   const [showDoneDone, setShowDoneDone] = useState(true);

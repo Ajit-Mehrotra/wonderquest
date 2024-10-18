@@ -14,10 +14,14 @@ function TaskCard({ provided, task, onDeleteTask }) {
   const [beingEdited, setBeingEdited] = useState(false);
   const [beingDeleted, setBeingDeleted] = useState(false);
 
-  const user = useContext(AuthContext);
+  const {user} = useContext(AuthContext);
   const { setTasks } = useContext(TaskContext);
 
-  const onSave = async (editingTask, setEditingTask) => {
+  const onSave = async (editingTask) => {
+    if (!user) {
+      alert("User not authenticated!");
+      return;
+    }
     try {
       await updateTaskStatus(editingTask.id, user.uid, editingTask);
       setTasks((prevTasks) => {

@@ -1,5 +1,5 @@
-import React, { useContext, useEffect } from "react";
-import { Container, Navbar, Nav, Button, Spinner } from "react-bootstrap"; // UI components from react-bootstrap
+import React, { useContext } from "react";
+import { Container, Navbar, Nav, Button } from "react-bootstrap"; // UI components from react-bootstrap
 import { Link } from "react-router-dom";
 import "../styles/Navbar.css";
 import { AuthContext } from "context/AuthContext";
@@ -20,6 +20,41 @@ function NavbarComponent() {
     }
   };
 
+  const UserLinks = () => {
+    return (
+      <>
+        <Nav>
+          <Nav.Link as={Link} to="/dashboard" className="nav-link-custom">
+            Dashboard
+          </Nav.Link>
+          <Nav.Link as={Link} to="/settings" className="nav-link-custom">
+            Settings
+          </Nav.Link>
+        </Nav>
+        <Button
+          variant="outline-primary"
+          className="custom-logout"
+          onClick={handleLogout}
+        >
+          Logout
+        </Button>
+      </>
+    );
+  };
+
+  const GuestLinks = () => {
+    return (
+      <>
+        <Nav.Link as={Link} to="/login" className="nav-link-custom">
+          Login
+        </Nav.Link>
+        <Nav.Link as={Link} to="/signup" className="nav-link-custom">
+          Sign Up
+        </Nav.Link>
+      </>
+    );
+  };
+
   return (
     <Navbar expand="lg" className="custom-navbar">
       {" "}
@@ -31,37 +66,7 @@ function NavbarComponent() {
         {/* Website Name */}
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav" className="justify-content-end">
-          <Nav>
-            {!user && ( // Conditionally render Login and Sign Up links
-              <>
-                <Nav.Link as={Link} to="/login" className="nav-link-custom">
-                  Login
-                </Nav.Link>
-                <Nav.Link as={Link} to="/signup" className="nav-link-custom">
-                  Sign Up
-                </Nav.Link>
-              </>
-            )}
-            {user && (
-              <>
-                <Nav.Link as={Link} to="/dashboard" className="nav-link-custom">
-                  Dashboard
-                </Nav.Link>
-                <Nav.Link as={Link} to="/settings" className="nav-link-custom">
-                  Settings
-                </Nav.Link>
-              </>
-            )}
-          </Nav>
-          {user && (
-            <Button
-              variant="outline-primary"
-              className="custom-logout"
-              onClick={handleLogout}
-            >
-              Logout
-            </Button>
-          )}
+          {user ? <UserLinks /> : <GuestLinks />}
         </Navbar.Collapse>
       </Container>
     </Navbar>

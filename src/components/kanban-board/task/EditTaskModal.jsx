@@ -4,11 +4,11 @@ import { FaSave, FaTimes } from "react-icons/fa";
 
 // Options for dropdowns
 const urgencyOptions = [
-  { label: "1 - Very Low - within a month", value: 1 },
-  { label: "2 - Low - within 1-2 weeks", value: 2 },
-  { label: "3 - Moderate - within 4 days", value: 3 },
-  { label: "4 - High - within 24-48 hrs", value: 4 },
   { label: "5 - Must be done today", value: 5 },
+  { label: "4 - High - within 24-48 hrs", value: 4 },
+  { label: "3 - Moderate - within 4 days", value: 3 },
+  { label: "2 - Low - within 1-2 weeks", value: 2 },
+  { label: "1 - Very Low - within a month", value: 1 },
 ];
 
 const valueOptions = [
@@ -20,11 +20,11 @@ const valueOptions = [
 ];
 
 const sizeOptions = [
-  { label: "<15 mins", value: 1 },
-  { label: "15-30 mins", value: 2 },
+  { label: "<15 mins", value: 5 },
+  { label: "15-30 mins", value: 4 },
   { label: "1 hr", value: 3 },
-  { label: "1-3 hrs", value: 4 },
-  { label: "3-6 hrs", value: 5 },
+  { label: "1-3 hrs", value: 2 },
+  { label: "3-6 hrs", value: 1 },
 ];
 
 const EditTaskModal = ({ show, task, onSave, onClose }) => {

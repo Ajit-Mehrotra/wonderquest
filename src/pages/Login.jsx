@@ -1,46 +1,38 @@
-import React, { useState } from "react";
-import { firebaseLogOnUser, signInWithGoogle } from "../services/auth";
+import React, { useContext, useState } from "react";
+import {
+  firebaseLogOnUser,
+  signInWithGoogle,
+  getLoginFriendlyErrorMessage,
+} from "../services/auth";
+import { AuthContext } from "context/AuthContext";
 
 function Login() {
+  const { setAuthLoading } = useContext(AuthContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const getFriendlyErrorMessage = (errorCode) => {
-    const errorMessages = {
-      "auth/user-not-found":
-        "No account found with this email. Please sign up first.",
-      "auth/wrong-password": "Incorrect password. Please try again.",
-      "auth/invalid-email": "Please enter a valid email address.",
-      "auth/user-disabled":
-        "This account has been disabled. Please contact support.",
-      "Login error: Error: auth/too-many-requests":
-        "Too many attempts. Please try again later.",
-      "auth/invalid-credential": "Invalid Credentials. Please try again.",
-      // Add other Firebase error codes as needed
-    };
-    return errorMessages[errorCode] || "Invalid input. Please try again.";
-  };
-
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
+      setAuthLoading(true);
       await firebaseLogOnUser(email, password);
-
-      console.debug("Logged in");
+      setAuthLoading(false);
+      console.debug("Logged in user");
     } catch (error) {
       console.error("Login error:", error);
-      console.log("Full error details:", JSON.stringify(error));
-      const friendlyMessage = getFriendlyErrorMessage(error.code);
+      const friendlyMessage = getLoginFriendlyErrorMessage(error.code);
       setError(friendlyMessage);
     }
   };
   const handleGoogleLogin = async () => {
     try {
+      setAuthLoading(true);
       await signInWithGoogle();
-      console.debug("Logged in with Google");
+      setAuthLoading(false);
+      console.debug("Logged in user");
     } catch (error) {
-      console.error("Google login error:", error);
+      console.error("Login error:", error);
     }
   };
 

@@ -1,49 +1,79 @@
 import React, { useState, useEffect, useContext } from "react";
 import { Container, Form, Button, Row, Col, Alert } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
-import { auth } from "../firebase/firebase";
-import { updateUserWeights } from "../services/api";
+import { fetchUserWeights, updateUserWeights } from "../services/api";
 import "../styles/Settings.css";
 import { AuthContext } from "context/AuthContext";
+import { WeightsContext } from "context/WeightContext";
 
-const Settings = ({ formulaWeights, setFormulaWeights }) => {
+const Settings = () => {
   const { user } = useContext(AuthContext);
-  const [weights, setWeights] = useState({ ...formulaWeights });
+  const { weights, setWeights } = useContext(WeightsContext);
+  const [formWeights, setFormWeights] = useState({ ...weights });
   const [notification, setNotification] = useState(null);
-  let isMounted = true;
+  
   const navigate = useNavigate();
 
+  
+  useEffect(() => {
+    let isMounted = true; 
+  
+    const loadUserWeights = async () => {
+      if (user && isMounted) {
+        try {
+          const fetchedWeights = await fetchUserWeights(user.uid);
+          if (isMounted) {
+            setWeights(fetchedWeights);
+            setFormWeights(fetchedWeights);
+          }
+        } catch (error) {
+          console.error("Failed to fetch user weights", error);
+        }
+      }
+    };
+  
+    loadUserWeights();
+  
+    return () => {
+      isMounted = false;  // Cleanup function to set isMounted to false when the component unmounts
+    };
+  }, [user]);
+  
+  
   const handleWeightChange = (e, weightType) => {
-    setWeights({
-      ...weights,
+    setFormWeights({
+      ...formWeights,
       [weightType]: Number(e.target.value),
     });
   };
 
+
+
+
   const handleSaveChanges = async () => {
+    let isMounted = true;
+    
     try {
-      // Update weights in the frontend state
-      setFormulaWeights(weights);
-
-      // Send PATCH request to update weights in the database and reorder tasks
-      await updateUserWeights({ userId: user.uid, weights });
-
-      // Set a success notification
+      setWeights(formWeights);
+      await updateUserWeights({ userId: user.uid, weights: formWeights });
+  
       if (isMounted) {
         setNotification({
           type: "success",
           message: "Changes saved successfully, and task priorities updated!",
         });
       }
-
-      // Redirect to dashboard after a short delay
-      setTimeout(() => {
+  
+      const timeoutId = setTimeout(() => {
         if (isMounted) {
           navigate("/dashboard");
         }
       }, 1000);
+      
+      // Cleanup timeout on unmount
+      return () => clearTimeout(timeoutId);
+      
     } catch (error) {
-      // Set an error notification
       if (isMounted) {
         setNotification({
           type: "danger",
@@ -51,14 +81,21 @@ const Settings = ({ formulaWeights, setFormulaWeights }) => {
         });
       }
     }
-
-    // Clear the notification after 3 seconds
-    setTimeout(() => {
+  
+    // Clear notification after 3 seconds
+    const clearNotificationTimeout = setTimeout(() => {
       if (isMounted) {
         setNotification(null);
       }
     }, 3000);
+  
+    // Cleanup both timeouts
+    return () => {
+      isMounted = false;
+      clearTimeout(clearNotificationTimeout);
+    };
   };
+  
 
   return (
     <Container className="settings-container mt-5">
@@ -82,7 +119,7 @@ const Settings = ({ formulaWeights, setFormulaWeights }) => {
               <Form.Label>Urgency Weight</Form.Label>
               <Form.Control
                 type="number"
-                value={weights.urgencyWeight}
+                value={formWeights.urgencyWeight}
                 min={0}
                 max={200}
                 onChange={(e) => handleWeightChange(e, "urgencyWeight")}
@@ -98,7 +135,7 @@ const Settings = ({ formulaWeights, setFormulaWeights }) => {
               <Form.Label>Value Weight</Form.Label>
               <Form.Control
                 type="number"
-                value={weights.valueWeight}
+                value={formWeights.valueWeight}
                 min={0}
                 max={200}
                 onChange={(e) => handleWeightChange(e, "valueWeight")}
@@ -114,7 +151,7 @@ const Settings = ({ formulaWeights, setFormulaWeights }) => {
               <Form.Label>Size Weight</Form.Label>
               <Form.Control
                 type="number"
-                value={weights.sizeWeight}
+                value={formWeights.sizeWeight}
                 min={0}
                 max={200}
                 onChange={(e) => handleWeightChange(e, "sizeWeight")}

@@ -1,13 +1,14 @@
 import { auth } from "../firebase/firebase";
 
+// eslint-disable-next-line no-undef
 const backendUrl = process.env.REACT_APP_BACKEND_SERVER_URL;
 
-export const createUserProfile = async ({ email, displayName }) => {
+export const createUserProfile = async ({ email, displayName = null }) => {
   try {
     const user = auth.currentUser;
     const token = await user.getIdToken();
 
-    const response = await fetch(`${backendUrl}/api/signup`, {
+    const response = await fetch(`${backendUrl}/api/users/signup`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -26,10 +27,33 @@ export const createUserProfile = async ({ email, displayName }) => {
   }
 };
 
+export const updateDisplayName = async ({ userId, displayName }) => {
+  try {
+    const user = auth.currentUser;
+    const token = await user.getIdToken();
+
+    const response = await fetch(`${backendUrl}/api/users/${userId}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ displayName }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to update user's displayName");
+    }
+    return response.json();
+  } catch (error) {
+    console.error("Error updating user's displayName:", error);
+    throw error;
+  }
+};
+
 export const fetchUserProfile = async (uid) => {
   const user = auth.currentUser;
   const token = await user.getIdToken();
-  console.log("went here");
   const response = await fetch(`${backendUrl}/api/user-profile?userId=${uid}`, {
     method: "GET",
     headers: {
@@ -38,8 +62,16 @@ export const fetchUserProfile = async (uid) => {
     },
   });
 
+  if (response.status === 404) {
+    // User profile not found; return null
+    return null;
+  }
+
   if (!response.ok) {
-    throw new Error("Failed to fetch user profile");
+    const errorText = await response.text();
+    throw new Error(
+      `Failed to fetch user profile: ${response.status} ${errorText}`
+    );
   }
   return response.json(); // Return the user profile data
 };
@@ -203,6 +235,29 @@ export const updateUserWeights = async ({ userId, weights }) => {
     return response.json();
   } catch (error) {
     console.error("Error updating weights and tasks:", error);
+    throw error;
+  }
+};
+
+export const fetchUserWeights = async (userId) => {
+  try {
+    const user = auth.currentUser;
+    const token = await user.getIdToken();
+
+    const response = await fetch(`${backendUrl}/api/users/${userId}/weights`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to get user weights");
+    }
+    return response.json();
+  } catch (error) {
+    console.error("Error fetching weights:", error);
     throw error;
   }
 };

@@ -1,15 +1,19 @@
-import React, {  useState } from "react";
+import React, { useContext, useState } from "react";
 import { auth } from "../firebase/firebase";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { signInWithGoogle } from "services/auth";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { signInWithGoogle, getSignupFriendlyErrorMessage } from "services/auth";
+import { AuthContext } from "context/AuthContext";
+import { createUserProfile } from "services/api";
+
+// import { createUserProfile } from "services/api";
+// import { AuthContext } from "context/AuthContext";
 
 function Signup() {
+  const { setUser, setAuthLoading } = useContext(AuthContext);
   const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+  const [formEmail, setFormEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-
-  const backendUrl = process.env.REACT_APP_BACKEND_SERVER_URL;
 
   const validateEmail = (email) => {
     // Regular expression for validating an email
@@ -17,26 +21,17 @@ function Signup() {
     return emailRegex.test(email);
   };
 
-  const getFriendlyErrorMessage = (errorCode) => {
-    const errorMessages = {
-      "auth/email-already-in-use":
-        "This email is already in use. Please use a different email.",
-      "auth/invalid-email": "Please enter a valid email address.",
-      "auth/weak-password":
-        "The password is too weak. Please use a stronger password.",
-      "auth/operation-not-allowed":
-        "Sign up is currently disabled. Please try again later.",
-      // Add other Firebase error codes as needed
-    };
-    return (
-      errorMessages[errorCode] ||
-      "An unexpected error occurred. Please try again."
-    );
+  const handleChange = (setter) => (e) => {
+    setter(e.target.value);
+    setError("");
   };
+
   const handleGoogleLogin = async () => {
     try {
+      setAuthLoading(true);
       await signInWithGoogle();
-      console.debug("Logged in with Google");
+      setAuthLoading(false);
+      console.debug("Logged In");
     } catch (error) {
       console.error("Google login error:", error);
     }
@@ -45,40 +40,50 @@ function Signup() {
     event.preventDefault();
     setError(""); // Clear previous errors before new attempt
 
-    if (!validateEmail(email)) {
+    if (!validateEmail(formEmail)) {
       setError("Please enter a valid email address.");
       return;
     }
 
     try {
-      // Step 1: Create the user in Firebase Authentication
-      // Step 2: Log in the user immediately (handled automatically by Firebase Auth)
+      // Step 1: Create the user in Firebase Authentication (done through frontend)
+      // Step 1.5: Log in the user immediately (handled automatically by Firebase Auth)
+      // Step 2: Send a request (with generated auth token  token) to our backend server to create the user profile in Firestore Database as well
+
+      // For a brief period, user will exist, but authLoading will be true. This is because the user is created in Firebase Auth, but not yet in Firestore Database.
+      // This is why Dashboard and other pages should check for authLoading before rendering user-specific content.
+
+      setAuthLoading(true);
       const userCredential = await createUserWithEmailAndPassword(
         auth,
-        email,
+        formEmail,
         password
       );
-      const user = userCredential.user;
-      const token = await user.getIdToken();
 
-      console.debug("User signed up and logged in on Firebase Auth");
+      const authUser = userCredential.user;
 
-      // Step 3: Send a request (with generated auth token  token) to our backend server to create the user profile in Firestore Database as well
-      const response = await fetch(`${backendUrl}/api/signup`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ email, displayName: name }),
+      await updateProfile(authUser, {
+        displayName: name,
       });
-      console.debug("Added user to Firebase DB");
-      if (!response.ok) throw new Error("Sign up failed");
 
-      console.debug("Sign up successful.");
+      await authUser.reload();
+      const updatedAuthUser = auth.currentUser;
+
+      const { uid, email, displayName } = updatedAuthUser;
+      const userProfile = { userId: uid, email, displayName };
+
+      //Create user profile in Firestore Database because it doesn't exist yet
+      await createUserProfile({
+        email: email,
+        displayName: displayName || "",
+      });
+
+      setUser({ ...updatedAuthUser, ...userProfile });
+      console.log("[signup.jsx]", "user has been set");
+      setAuthLoading(false);
     } catch (error) {
       console.error("Signup error:", error);
-      const friendlyMessage = getFriendlyErrorMessage(error.code);
+      const friendlyMessage = getSignupFriendlyErrorMessage(error.code);
       setError(friendlyMessage || "An error occurred during sign up.");
     }
   };
@@ -94,10 +99,7 @@ function Signup() {
             </label>
             <input
               type="text"
-              onChange={(e) => {
-                setName(e.target.value);
-                setError("");
-              }}
+              onChange={handleChange(setName)}
               className="form-control"
               id="name"
               required
@@ -109,10 +111,7 @@ function Signup() {
             </label>
             <input
               type="email"
-              onChange={(e) => {
-                setEmail(e.target.value);
-                setError("");
-              }}
+              onChange={handleChange(setFormEmail)}
               className="form-control"
               id="email"
               required
@@ -124,25 +123,26 @@ function Signup() {
             </label>
             <input
               type="password"
-              onChange={(e) => {
-                setPassword(e.target.value);
-                setError("");
-              }}
+              onChange={handleChange(setPassword)}
               className="form-control"
               id="password"
               required
             />
           </div>
-          {error && ( // Display error message if it exists
+
+          {error && (
             <div className="alert alert-danger mt-3" role="alert">
               {error}
             </div>
           )}
+
           <button type="submit" className="btn btn-primary w-100">
             Sign Up
           </button>
         </form>
+
         <hr />
+
         <button
           onClick={handleGoogleLogin}
           className="btn btn-outline-danger w-100"

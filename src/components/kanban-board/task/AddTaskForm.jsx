@@ -1,6 +1,9 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { Form, Button, Row, Col, Card } from "react-bootstrap";
 import { addTask } from "../../../services/api";
+import { AuthContext } from "context/AuthContext";
+import { fetchTasks } from "context/TaskContext";
+import { TaskContext } from "context/TaskContext";
 
 const urgencyOptions = [
   { label: "5 - Must be done today", value: 5 },
@@ -26,7 +29,7 @@ const sizeOptions = [
   { label: "3-6 hrs", value: 1 },
 ];
 
-function AddTask({ setShowAddTaskModal, fetchTasks }) {
+function AddTask({ setShowAddTaskModal }) {
   const [taskData, setTaskData] = useState({
     name: "",
     notes: "",
@@ -38,7 +41,8 @@ function AddTask({ setShowAddTaskModal, fetchTasks }) {
     ignorePriority: false,
   });
 
-  const [user] = useState(null);
+  const { user } = useContext(AuthContext);
+  const { setTasks } = useContext(TaskContext);
 
   const handleRadioChange = (e, fieldName, options) => {
     const selectedValue = Number(e.target.value);
@@ -70,7 +74,7 @@ function AddTask({ setShowAddTaskModal, fetchTasks }) {
 
     await addTask({ userId: user.uid, task: taskWithPriority });
     setShowAddTaskModal(false);
-    fetchTasks();
+    await fetchTasks(user, setTasks);
   };
 
   return (

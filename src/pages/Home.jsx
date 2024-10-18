@@ -1,7 +1,7 @@
 import React from 'react';
-import { Container, Row, Col, Button, Card, Navbar, Nav } from 'react-bootstrap';
+import { Container, Row, Col, Button, Card, } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { FaCheckCircle, FaTasks, FaUserFriends, FaCogs } from 'react-icons/fa';
+import {  FaTasks, FaUserFriends, FaCogs } from 'react-icons/fa';
 
 function Home() {
   return (

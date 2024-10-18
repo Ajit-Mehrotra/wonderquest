@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Button, Modal } from "react-bootstrap";
 import { FaPlus } from "react-icons/fa";
 import AddTask from "./AddTaskForm";
-import { fetchTasks } from "context/TaskContext";
+
 
 const AddTaskButtonWithModal = () => {
   const [showAddTaskModal, setShowAddTaskModal] = useState(false);
@@ -43,7 +43,6 @@ const AddTaskButtonWithModal = () => {
         <Modal.Body>
           <AddTask
             setShowAddTaskModal={setShowAddTaskModal}
-            fetchTasks={fetchTasks}
           />
         </Modal.Body>
       </Modal>

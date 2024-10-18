@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useContext } from "react";
 
 import { Container } from "react-bootstrap";
 
@@ -16,6 +16,7 @@ import Home from "./pages/Home";
 import Settings from "pages/Settings";
 import { AuthContext, AuthProvider } from "context/AuthContext";
 import { TaskProvider } from "context/TaskContext";
+import { WeightsProvider } from "context/WeightContext";
 
 // is able to access the context because Protected Route is a child of the UserProvider function below.
 function UserRoute({ children }) {
@@ -35,13 +36,16 @@ function VisitorRoute({ children }) {
 }
 
 function App() {
-  const [formulaWeights, setFormulaWeights] = useState({
-    urgencyWeight: 100,
-    valueWeight: 60,
-    sizeWeight: 40,
-  });
-  return (
+  const CombinedProviders = ({ children }) => (
     <AuthProvider>
+      <WeightsProvider>
+        <TaskProvider>{children}</TaskProvider>
+      </WeightsProvider>
+    </AuthProvider>
+  );
+
+  return (
+    <CombinedProviders>
       <Router>
         <Container>
           <div className="container text-center my-4">
@@ -68,9 +72,7 @@ function App() {
                 path="/dashboard"
                 element={
                   <UserRoute>
-                    <TaskProvider formulaWeights={formulaWeights}>
-                      <Dashboard />
-                    </TaskProvider>
+                    <Dashboard />
                   </UserRoute>
                 }
               />
@@ -78,10 +80,7 @@ function App() {
                 path="/settings"
                 element={
                   <UserRoute>
-                    <Settings
-                      formulaWeights={formulaWeights}
-                      setFormulaWeights={setFormulaWeights}
-                    />
+                    <Settings />
                   </UserRoute>
                 }
               />
@@ -89,7 +88,7 @@ function App() {
           </div>
         </Container>
       </Router>
-    </AuthProvider>
+    </CombinedProviders>
   );
 }
 

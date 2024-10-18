@@ -27,3 +27,36 @@
   background-color: #e6f7ff; /* Light blue color to indicate it's ready for dropping */
   border-color: #007bff; /* Highlight the border when it's a potential drop target */
 }
+
+.loading-container {
+  display: flex;
+  justify-content: center; /* Centers horizontally */
+  align-items: center;     /* Centers vertically */
+  height: 100vh;           /* Full viewport height */
+}
+
+/* Auth message container styles */
+.auth-message-container {
+  display: flex;
+  justify-content: center; /* Centers horizontally */
+  align-items: center;     /* Centers vertically */
+  height: 100vh;           /* Full viewport height */
+}
+
+.auth-message {
+  text-align: center;      /* Centers text within the message container */
+}
+
+.auth-message h2 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.auth-message p {
+  font-size: 1.2rem;
+  color: #555;             /* Adjust color as needed */
+}
+
+.auth-message .btn {
+  margin-top: 1rem;
+}

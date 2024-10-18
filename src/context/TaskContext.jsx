@@ -1,6 +1,7 @@
 import React, { createContext, useState, useContext, useEffect } from "react";
 import { AuthContext } from "./AuthContext";
 import { fetchTasksFromApi } from "services/api";
+import { WeightsContext } from "./WeightContext";
 
 export const TaskContext = createContext(null);
 
@@ -80,17 +81,21 @@ export const fetchTasks = async (user, setTasks) => {
   }
 };
 
-export function TaskProvider({ children, formulaWeights }) {
+export function TaskProvider({ children }) {
+  const { weights } = useContext(WeightsContext);
   const [tasks, setTasks] = useState({
     "Priority Backlog": [],
     Today: [],
     "Done Done": [],
   });
 
-  const { user } = useContext(AuthContext);
+  const { user, authLoading } = useContext(AuthContext);
 
   useEffect(() => {
-    let isMounted = true; // track if the component is still mounted
+    if (authLoading) return;
+    if (!user) return;
+
+    let isMounted = true;
     const fetchData = async () => {
       try {
         if (isMounted) {
@@ -104,9 +109,9 @@ export function TaskProvider({ children, formulaWeights }) {
     fetchData();
 
     return () => {
-      isMounted = false; // cleanup function to mark component as unmounted
+      isMounted = false;
     };
-  }, [user, formulaWeights]);
+  }, [user, weights, authLoading]);
 
   return (
     <TaskContext.Provider value={{ tasks, setTasks }}>
