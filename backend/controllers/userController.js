@@ -2,6 +2,8 @@ import {
   createFirebaseUser,
   getFirebaseUserData,
   updateDisplayNameInDB,
+  deleteUserFromDB,
+  updateUserEmailInDB,
 } from "../models/userModel.js";
 import {
   getTasksFromDB,
@@ -53,7 +55,7 @@ export const updateTaskWeights = async (req, res) => {
     const tasks = await getTasksFromDB(userId);
 
     // Initialize task columns
-    const newTasks = { ...defaultColumns };
+    const newTasks = defaultColumns();
 
     //Update Weights, Reset ignorePriority Flag, and Sort tasks by Column Name
     for (let task of tasks) {
@@ -86,35 +88,7 @@ export const updateTaskWeights = async (req, res) => {
       newTasks[taskStatus].push(updatedTask);
     }
 
-    // Sort Tasks by Priority, Set new prevTaskIds and nextTaskIds, Send update to Firestore
-    for (let column in newTasks) {
-      //get the column of tasks
-      const tasksArray = newTasks[column];
-
-      // sort the array by priority
-      tasksArray.sort((a, b) => a.priority - b.priority);
-
-      for (let i = 0; i < tasksArray.length; i++) {
-        const currentTask = tasksArray[i];
-
-        if (i === 0) {
-          currentTask.prevTaskId = null;
-        } else {
-          currentTask.prevTaskId = tasksArray[i - 1].id;
-        }
-        if (i === tasksArray.length - 1) {
-          currentTask.nextTaskId = null;
-        } else {
-          currentTask.nextTaskId = tasksArray[i + 1].id;
-        }
-
-        await updateTaskInDB(userId, tasksArray[i].id, {
-          ...currentTask,
-          prevTaskId: currentTask.prevTaskId,
-          nextTaskId: currentTask.nextTaskId,
-        });
-      }
-    }
+    await sortTasksByPriority(newTasks, userId);
 
     res.status(200).json({ message: "Weights and tasks updated successfully" });
   } catch (error) {
@@ -122,6 +96,38 @@ export const updateTaskWeights = async (req, res) => {
       error: "Failed to update weights and tasks",
       details: error.message,
     });
+  }
+};
+
+export const sortTasksByPriority = async (tasks, userId) => {
+  // Sort Tasks by Priority, Set new prevTaskIds and nextTaskIds, Send update to Firestore
+  for (let column in tasks) {
+    //get the column of tasks
+    const tasksArray = tasks[column];
+
+    // sort the array by priority
+    tasksArray.sort((a, b) => a.priority - b.priority);
+
+    for (let i = 0; i < tasksArray.length; i++) {
+      const currentTask = tasksArray[i];
+
+      if (i === 0) {
+        currentTask.prevTaskId = null;
+      } else {
+        currentTask.prevTaskId = tasksArray[i - 1].id;
+      }
+      if (i === tasksArray.length - 1) {
+        currentTask.nextTaskId = null;
+      } else {
+        currentTask.nextTaskId = tasksArray[i + 1].id;
+      }
+
+      await updateTaskInDB(userId, tasksArray[i].id, {
+        ...currentTask,
+        prevTaskId: currentTask.prevTaskId,
+        nextTaskId: currentTask.nextTaskId,
+      });
+    }
   }
 };
 
@@ -146,7 +152,6 @@ export const getTaskWeights = async (req, res) => {
 export const updateDisplayName = async (req, res) => {
   const { userId } = req.params;
   const { displayName } = req.body;
-  console.log("updating display name");
   try {
     await updateDisplayNameInDB(userId, displayName);
     res.status(200).json({ message: "Display name updated successfully" });
@@ -155,5 +160,34 @@ export const updateDisplayName = async (req, res) => {
       error: "Failed to update display name",
       details: error.message,
     });
+  }
+};
+
+export const updateUserEmail = async (req, res) => {
+  const { user_id: userId } = req.user;
+  const { email } = req.body;
+
+  try {
+
+    await updateUserEmailInDB(userId, email);
+    res.status(200).json({ message: "Email updated successfully" });
+  } catch (error) {
+    res.status(500).json({
+      error: "Failed to update Email",
+      details: error.message,
+    });
+  }
+};
+
+// Delete User Account
+export const deleteUser = async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    await deleteUserFromDB(userId);
+    res.status(200).send({ message: "User account deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting user account:", error);
+    res.status(500).send({ message: "Failed to delete user account" });
   }
 };

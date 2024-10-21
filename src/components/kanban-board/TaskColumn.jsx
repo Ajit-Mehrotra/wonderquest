@@ -1,9 +1,7 @@
-import React, { memo,  useState } from "react";
+import React, { memo, useState } from "react";
 import { Droppable, Draggable } from "react-beautiful-dnd";
-import { Form } from "react-bootstrap";
 import TaskCard from "./task/TaskCard";
-import '../../styles/KanbanBoard.css';
-
+import DoneToggle from "./DoneToggle";
 
 function TaskColumn({ columnId, tasks, onDeleteTask }) {
   const [showDoneDone, setShowDoneDone] = useState(true);
@@ -14,16 +12,14 @@ function TaskColumn({ columnId, tasks, onDeleteTask }) {
         <div className="column-header">
           {columnId}
           {columnId === "Done Done" && (
-            <Form.Check
-              type="switch"
-              id="done-done-toggle"
-              label=""
-              checked={showDoneDone}
-              onChange={() => setShowDoneDone(!showDoneDone)}
+            <DoneToggle
+              showDoneDone={showDoneDone}
+              onToggle={() => setShowDoneDone(!showDoneDone)}
             />
           )}
         </div>
       </h2>
+      {/* <div className={showDoneDone ? "" : "d-none"}> */}
       <Droppable droppableId={columnId}>
         {(provided, snapshot) => (
           <div
@@ -51,6 +47,7 @@ function TaskColumn({ columnId, tasks, onDeleteTask }) {
           </div>
         )}
       </Droppable>
+      {/* </div> */}
     </div>
   );
 }

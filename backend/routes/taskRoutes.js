@@ -4,6 +4,7 @@ import {
   updateTask,
   reorderTasks,
   deleteTask,
+  deleteAllTasks,
 } from "../controllers/taskController.js";
 
 import express from "express";
@@ -14,6 +15,9 @@ router.get("/", getTasks);
 
 // Add New Task & re-order the linked list
 router.post("/", addTask);
+
+// Delete all tasks
+router.delete("/", deleteAllTasks);
 
 //Update Task based off new details & re-order the linked list
 router.patch("/:taskId", updateTask);

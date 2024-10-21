@@ -4,6 +4,7 @@ import { addTask } from "../../../services/api";
 import { AuthContext } from "context/AuthContext";
 import { fetchTasks } from "context/TaskContext";
 import { TaskContext } from "context/TaskContext";
+import { WeightsContext } from "context/WeightContext";
 
 const urgencyOptions = [
   { label: "5 - Must be done today", value: 5 },
@@ -29,7 +30,7 @@ const sizeOptions = [
   { label: "3-6 hrs", value: 1 },
 ];
 
-function AddTask({ setShowAddTaskModal }) {
+function AddTaskForm({ setShowAddTaskModal }) {
   const [taskData, setTaskData] = useState({
     name: "",
     notes: "",
@@ -43,6 +44,7 @@ function AddTask({ setShowAddTaskModal }) {
 
   const { user } = useContext(AuthContext);
   const { setTasks } = useContext(TaskContext);
+  const { weights } = useContext(WeightsContext);
 
   const handleRadioChange = (e, fieldName, options) => {
     const selectedValue = Number(e.target.value);
@@ -66,9 +68,9 @@ function AddTask({ setShowAddTaskModal }) {
     }
 
     const priority =
-      taskData.urgency.value * 100 +
-      taskData.value.value * 60 +
-      taskData.size.value * 40;
+      taskData.urgency.value * weights.urgencyWeight +
+      taskData.value.value * weights.valueWeight +
+      taskData.size.value * weights.sizeWeight;
 
     const taskWithPriority = { ...taskData, priority: priority };
 
@@ -184,4 +186,4 @@ function AddTask({ setShowAddTaskModal }) {
   );
 }
 
-export default AddTask;
+export default AddTaskForm;

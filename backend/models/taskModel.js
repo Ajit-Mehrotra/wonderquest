@@ -100,3 +100,15 @@ export const getTaskWeightFromDB = async (userId) => {
   const weights = doc.data().weights;
   return weights;
 };
+
+export const deleteAllTasksFromDB = async (userId) => {
+  const tasksRef = admin.firestore().collection(`users/${userId}/tasks`);
+  const snapshot = await tasksRef.get();
+
+  const batch = admin.firestore().batch();
+  snapshot.forEach((doc) => {
+    batch.delete(doc.ref);
+  });
+
+  await batch.commit();
+};

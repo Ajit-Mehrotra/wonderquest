@@ -1,11 +1,13 @@
 import React, { useContext, useState } from "react";
-import { Card, Button, Badge } from "react-bootstrap";
-import { FaCaretDown, FaCaretLeft, FaEdit, FaTrash } from "react-icons/fa";
+import { Card, Button, Badge, Collapse } from "react-bootstrap";
+import { FaCaretLeft, FaEdit, FaTrash } from "react-icons/fa";
 import EditTaskModal from "./EditTaskModal";
 import { updateTaskStatus } from "services/api";
 import DeleteConfirmationModal from "./DeleteConfirmationModal";
 import { AuthContext } from "context/AuthContext";
 import { TaskContext } from "context/TaskContext";
+import TaskProperties from "./TaskProperties";
+
 const sortTasksByPriority = (taskList) => {
   return taskList.sort((a, b) => b.priority - a.priority);
 };
@@ -13,13 +15,20 @@ function TaskCard({ provided, task, onDeleteTask }) {
   const [expanded, setExpanded] = useState(false);
   const [beingEdited, setBeingEdited] = useState(false);
   const [beingDeleted, setBeingDeleted] = useState(false);
+  const [error, setError] = useState(null);
 
-  const {user} = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
   const { setTasks } = useContext(TaskContext);
+
+  const propertiesToRender = [
+    { label: "Urgency", value: task.urgency.label },
+    { label: "Value", value: task.value.label },
+    { label: "Priority", value: task.priority },
+  ];
 
   const onSave = async (editingTask) => {
     if (!user) {
-      alert("User not authenticated!");
+      setError("User not authenticated!");
       return;
     }
     try {
@@ -37,6 +46,7 @@ function TaskCard({ provided, task, onDeleteTask }) {
       setBeingEdited(false);
     } catch (error) {
       console.error("Failed to save task:", error);
+      setError("Failed to save task. Please try again.");
     }
   };
 
@@ -49,53 +59,26 @@ function TaskCard({ provided, task, onDeleteTask }) {
         className="mb-3"
       >
         <Card.Body>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
+          <div className="task-card">
             <Card.Title>{task.name}</Card.Title>
             <div>
-              <Badge pill className="size-badge">
+              <Badge pill className="task-badge">
                 {task.size.label}
               </Badge>
-
-              {expanded ? (
-                <Button variant="link" onClick={() => setExpanded(false)}>
-                  <FaCaretDown />
-                </Button>
-              ) : (
-                <Button variant="link" onClick={() => setExpanded(true)}>
-                  <FaCaretLeft />
-                </Button>
-              )}
+              <Button variant="link" onClick={() => setExpanded(!expanded)}>
+                <FaCaretLeft
+                  className={`caret-icon ${expanded ? "caret-rotated" : ""}`}
+                />
+              </Button>
             </div>
           </div>
-
-          {expanded && (
-            <>
+          <Collapse in={expanded}>
+            <div>
               <Card.Text>{task.notes}</Card.Text>
-              <div>
-                <span className="badge-label">Urgency: </span>
-                <Badge pill className="urgency-badge">
-                  {task.urgency.label}
-                </Badge>
-              </div>
-              <div>
-                <span className="badge-label">Value: </span>
-                <Badge pill className="value-badge">
-                  {task.value.label}
-                </Badge>
-              </div>
-              <div>
-                <span className="badge-label">Priority: </span>
-                <Badge pill className="urgency-badge">
-                  {task.priority}
-                </Badge>
-              </div>
-              <div className="mt-2 d-flex justify-content-end">
+              {propertiesToRender.map(({ label, value }) => (
+                <TaskProperties key={label} label={label} value={value} />
+              ))}
+              <div className="mt-4 d-flex justify-content-end">
                 <Button
                   variant="outline-primary"
                   size="sm"
@@ -112,7 +95,13 @@ function TaskCard({ provided, task, onDeleteTask }) {
                   <FaTrash /> Delete
                 </Button>
               </div>
-            </>
+            </div>
+          </Collapse>
+
+          {error && (
+            <div className="alert alert-danger mt-3" role="alert">
+              {error}
+            </div>
           )}
         </Card.Body>
       </Card>

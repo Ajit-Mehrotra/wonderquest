@@ -4,10 +4,10 @@ export const defaultWeights = {
   sizeWeight: 40,
 };
 
-export const defaultColumns = {
+export const defaultColumns = () => ({
   "Priority Backlog": [],
   Today: [],
   "Done Done": [],
-};
+});
 
 export const defaultStatus = "Priority Backlog";

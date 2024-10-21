@@ -1,7 +1,5 @@
 import React, { useContext } from "react";
 
-import { Container } from "react-bootstrap";
-
 import {
   BrowserRouter as Router,
   Routes,
@@ -12,11 +10,12 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
 import NavbarComponent from "./components/Navbar";
-import Home from "./pages/Home";
+import LandingPage from "./pages/LandingPage";
 import Settings from "pages/Settings";
 import { AuthContext, AuthProvider } from "context/AuthContext";
 import { TaskProvider } from "context/TaskContext";
 import { WeightsProvider } from "context/WeightContext";
+import { ThemeProvider } from "context/ThemeContext";
 
 // is able to access the context because Protected Route is a child of the UserProvider function below.
 function UserRoute({ children }) {
@@ -38,55 +37,53 @@ function VisitorRoute({ children }) {
 function App() {
   const CombinedProviders = ({ children }) => (
     <AuthProvider>
-      <WeightsProvider>
-        <TaskProvider>{children}</TaskProvider>
-      </WeightsProvider>
+      <ThemeProvider>
+        <WeightsProvider>
+          <TaskProvider>{children}</TaskProvider>
+        </WeightsProvider>
+      </ThemeProvider>
     </AuthProvider>
   );
 
   return (
     <CombinedProviders>
       <Router>
-        <Container>
-          <div className="container text-center my-4">
-            <NavbarComponent />
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route
-                path="/login"
-                element={
-                  <VisitorRoute>
-                    <Login />
-                  </VisitorRoute>
-                }
-              />
-              <Route
-                path="/signup"
-                element={
-                  <VisitorRoute>
-                    <Signup />
-                  </VisitorRoute>
-                }
-              />
-              <Route
-                path="/dashboard"
-                element={
-                  <UserRoute>
-                    <Dashboard />
-                  </UserRoute>
-                }
-              />
-              <Route
-                path="/settings"
-                element={
-                  <UserRoute>
-                    <Settings />
-                  </UserRoute>
-                }
-              />
-            </Routes>
-          </div>
-        </Container>
+        <NavbarComponent />
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route
+            path="/login"
+            element={
+              <VisitorRoute>
+                <Login />
+              </VisitorRoute>
+            }
+          />
+          <Route
+            path="/signup"
+            element={
+              <VisitorRoute>
+                <Signup />
+              </VisitorRoute>
+            }
+          />
+          <Route
+            path="/dashboard"
+            element={
+              <UserRoute>
+                <Dashboard />
+              </UserRoute>
+            }
+          />
+          <Route
+            path="/settings"
+            element={
+              <UserRoute>
+                <Settings />
+              </UserRoute>
+            }
+          />
+        </Routes>
       </Router>
     </CombinedProviders>
   );

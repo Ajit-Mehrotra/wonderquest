@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import { WeightsContext } from "context/WeightContext";
+import React, { useContext, useState } from "react";
 import { Modal, Form, Button } from "react-bootstrap";
 import { FaSave, FaTimes } from "react-icons/fa";
 
@@ -28,6 +29,9 @@ const sizeOptions = [
 ];
 
 const EditTaskModal = ({ show, task, onSave, onClose }) => {
+  const { weights } = useContext(WeightsContext);
+  const { urgencyWeight, valueWeight, sizeWeight } = weights;
+
   // Initialize the editing task with both label and value for dropdown fields
   const [editingTask, setEditingTask] = useState({
     ...task,
@@ -36,6 +40,14 @@ const EditTaskModal = ({ show, task, onSave, onClose }) => {
     value: task.value || { label: "", value: 0 },
     priority: task.priority || 0,
   });
+
+  const calculatePriority = (task) => {
+    return (
+      task.urgency.value * urgencyWeight +
+      task.value.value * valueWeight +
+      task.size.value * sizeWeight
+    );
+  };
 
   // Handle changes to dropdowns and text inputs
   const onChange = (e) => {
@@ -89,7 +101,6 @@ const EditTaskModal = ({ show, task, onSave, onClose }) => {
               value={editingTask.size.value}
               onChange={onChange}
             >
-              <option value="">Select Size</option>
               {sizeOptions.map((option) => (
                 <option key={option.value} value={option.value}>
                   {option.label}
@@ -105,7 +116,6 @@ const EditTaskModal = ({ show, task, onSave, onClose }) => {
               value={editingTask.urgency.value}
               onChange={onChange}
             >
-              <option value="">Select Urgency</option>
               {urgencyOptions.map((option) => (
                 <option key={option.value} value={option.value}>
                   {option.label}
@@ -121,7 +131,6 @@ const EditTaskModal = ({ show, task, onSave, onClose }) => {
               value={editingTask.value.value}
               onChange={onChange}
             >
-              <option value="">Select Value</option>
               {valueOptions.map((option) => (
                 <option key={option.value} value={option.value}>
                   {option.label}
@@ -138,12 +147,8 @@ const EditTaskModal = ({ show, task, onSave, onClose }) => {
         <Button
           variant="primary"
           onClick={() => {
-            const priority =
-              editingTask.urgency.value * 100 +
-              editingTask.value.value * 60 +
-              editingTask.size.value * 40;
-            const taskWithPriority = { ...editingTask, priority: priority };
-            onSave(taskWithPriority, setEditingTask);
+            const priority = calculatePriority(editingTask);
+            onSave({ ...editingTask, priority: priority }, setEditingTask);
           }}
         >
           <FaSave /> Save Changes

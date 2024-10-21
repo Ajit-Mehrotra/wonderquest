@@ -1,80 +1,93 @@
 /* App.css */
 .custom-navbar {
-    background-color: #f8f9fa; /* Light background color */
-    border-radius: 12px; /* Rounded corners for a bubbly look */
-    padding: 10px 20px; /* Add some padding */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow for a modern look */
-  }
-  
-  .brand-name {
-    font-weight: bold;
-    font-size: 1.5rem;
-    color: #007bff; /* Primary color for branding */
-    position: relative; /* Needed for underline animation */
-    display: inline-block; /* Inline block for proper scaling */
-    transition: color 0.3s ease-in-out, transform 0.3s ease-in-out; /* Smooth transitions */
-  }
-  
-  .brand-name::after {
-    content: '';
-    position: absolute;
-    left: 50%;
-    bottom: -3px; /* Position underline slightly below text */
-    width: 0;
-    height: 2px;
-    background-color: #0056b3; /* Underline color */
-    transition: width 0.3s ease-in-out, left 0.3s ease-in-out; /* Underline animation */
-    transform: translateX(-50%);
-  }
-  
-  .brand-name:hover {
-    color: #0056b3; /* Darker color on hover */
-  }
-  
-  .brand-name:hover::after {
-    width: 100%; /* Expand underline */
-    left: 50%; /* Keep centered */
-  }
-  
-  .nav-link-custom {
-    margin-right: 15px;
-    font-size: 1rem;
-    color: #007bff; /* Match brand color */
-    position: relative; /* Needed for underline animation */
-    display: inline-block; /* Inline block for proper scaling */
-    transition: color 0.3s ease-in-out, transform 0.3s ease-in-out; /* Smooth transitions */
-  }
-  
-  .nav-link-custom::after {
-    content: '';
-    position: absolute;
-    left: 50%;
-    bottom: -3px; /* Position underline slightly below text */
-    width: 0;
-    height: 2px;
-    background-color: #0056b3; /* Underline color */
-    transition: width 0.3s ease-in-out, left 0.3s ease-in-out; /* Underline animation */
-    transform: translateX(-50%);
-  }
-  
-  .nav-link-custom:hover {
-    color: #0056b3; /* Darker color on hover */
- 
-  }
-  
-  .nav-link-custom:hover::after {
-    width: 100%; /* Expand underline */
-    left: 50%; /* Keep centered */
-  }
-  
-  .custom-logout {
-    border-radius: 20px; /* More rounded for a bubbly look */
-    padding: 5px 20px;
-    transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out, transform 0.3s ease-in-out; /* Add transition for hover effects */
-  }
-  
-  .custom-logout:hover {
-    background-color: #0056b3; /* Darker hover effect */
-    color: white; /* White text on hover */
-  }
-  
+  border-radius: 12px; /* Rounded corners for a bubbly look */
+  padding: 10px 20px; /* Add some padding */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow for a modern look */
+}
+
+.brand-name {
+  color: #007bff; /* Primary color for branding */
+  position: relative; /* Needed for underline animation */
+  display: inline-block; /* Inline block for proper scaling */
+  transition: color 0.3s ease-in-out, transform 0.3s ease-in-out; /* Smooth transitions */
+}
+
+.brand-logo-container {
+  height: 40px; /* Set your desired height */
+  overflow: hidden; /* This will crop/hide anything outside this height */
+  display: flex;
+  align-items: center;
+}
+
+.brand-logo {
+  width: 200px; /* Maintain original width */
+  object-fit: cover; /* This will "crop" the image */
+  object-position: center; /* Center the visible portion */
+}
+
+.brand-name::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -3px; /* Position underline slightly below text */
+  width: 0;
+  height: 2px;
+  background-color: #0056b3; /* Underline color */
+  transition: width 0.3s ease-in-out, left 0.3s ease-in-out; /* Underline animation */
+  transform: translateX(-50%);
+}
+
+.brand-name:hover {
+  color: #0056b3; /* Darker color on hover */
+}
+
+.brand-name:hover::after {
+  width: 100%; /* Expand underline */
+  left: 50%; /* Keep centered */
+}
+
+.nav-link-custom {
+  margin-right: 15px;
+  font-size: 1rem;
+  color: #007bff; /* Match brand color */
+  position: relative; /* Needed for underline animation */
+  display: inline-block; /* Inline block for proper scaling */
+  transition: color 0.3s ease-in-out, transform 0.3s ease-in-out; /* Smooth transitions */
+}
+
+.nav-link-custom::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -3px; /* Position underline slightly below text */
+  width: 0;
+  height: 2px;
+  background-color: #0056b3; /* Underline color */
+  transition: width 0.3s ease-in-out, left 0.3s ease-in-out; /* Underline animation */
+  transform: translateX(-50%);
+}
+
+.nav-link-custom:hover {
+  color: #0056b3; /* Darker color on hover */
+}
+
+.nav-link-custom:hover::after {
+  width: 100%; /* Expand underline */
+  left: 50%; /* Keep centered */
+}
+
+.custom-logout {
+  border-radius: 20px; /* More rounded for a bubbly look */
+  padding: 5px 20px;
+  transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out,
+    transform 0.3s ease-in-out; /* Add transition for hover effects */
+}
+
+.custom-logout:hover {
+  background-color: #0056b3; /* Darker hover effect */
+  color: white; /* White text on hover */
+}
+
+.form-check.theme-toggle {
+  margin-bottom: 0rem;
+}

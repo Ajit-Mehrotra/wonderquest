@@ -37,3 +37,19 @@ export const updateDisplayNameInDB = async (userId, displayName) => {
     displayName,
   });
 };
+
+export const updateUserEmailInDB = async (userId, email) => {
+  const userRef = admin.firestore().collection("users").doc(userId);
+  console.log(email);
+  await userRef.update({
+    email,
+  });
+};
+
+export const deleteUserFromDB = async (userId) => {
+  // Delete Firestore document
+  await admin.firestore().collection("users").doc(userId).delete();
+
+  // Delete Firebase Auth user
+  await admin.auth().deleteUser(userId);
+};

@@ -19,32 +19,38 @@
   border-radius: 8px;
   padding: 16px;
   min-height: 400px;
-  background-color: #f9f9f9; /* Light background to make it stand out */
   transition: background-color 0.3s ease-in-out;
+}
+[data-bs-theme="dark"] .task-column {
+  border-color: rgb(62, 68, 70);
 }
 
 .task-column.droppable-over {
   background-color: #e6f7ff; /* Light blue color to indicate it's ready for dropping */
   border-color: #007bff; /* Highlight the border when it's a potential drop target */
 }
+[data-bs-theme="dark"] .task-column.droppable-over {
+  background-color: #021e3b; /* Light blue color to indicate it's ready for dropping */
+  border-color: #0352a7;
+}
 
 .loading-container {
   display: flex;
   justify-content: center; /* Centers horizontally */
-  align-items: center;     /* Centers vertically */
-  height: 100vh;           /* Full viewport height */
+  align-items: center; /* Centers vertically */
+  height: 100vh; /* Full viewport height */
 }
 
 /* Auth message container styles */
 .auth-message-container {
   display: flex;
   justify-content: center; /* Centers horizontally */
-  align-items: center;     /* Centers vertically */
-  height: 100vh;           /* Full viewport height */
+  align-items: center; /* Centers vertically */
+  height: 100vh; /* Full viewport height */
 }
 
 .auth-message {
-  text-align: center;      /* Centers text within the message container */
+  text-align: center; /* Centers text within the message container */
 }
 
 .auth-message h2 {
@@ -54,9 +60,45 @@
 
 .auth-message p {
   font-size: 1.2rem;
-  color: #555;             /* Adjust color as needed */
+  color: #555; /* Adjust color as needed */
 }
 
 .auth-message .btn {
   margin-top: 1rem;
+}
+
+.add-task-button {
+  bottom: 60px;
+  right: 80px;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+button.add-task-button {
+  border-radius: 50%;
+}
+
+.column-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 40px;
+}
+
+.task-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.caret-icon {
+  transition: transform 0.2s ease;
+}
+
+.caret-rotated {
+  transform: rotate(-90deg);
 }

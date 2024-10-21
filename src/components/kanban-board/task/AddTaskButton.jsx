@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import { Button, Modal } from "react-bootstrap";
 import { FaPlus } from "react-icons/fa";
-import AddTask from "./AddTaskForm";
-
+import AddTaskForm from "./AddTaskForm";
 
 const AddTaskButtonWithModal = () => {
   const [showAddTaskModal, setShowAddTaskModal] = useState(false);
@@ -13,18 +12,7 @@ const AddTaskButtonWithModal = () => {
       <Button
         variant="primary"
         onClick={() => setShowAddTaskModal(true)}
-        className="position-fixed"
-        style={{
-          bottom: "60px",
-          right: "80px",
-          borderRadius: "50%",
-          width: "60px",
-          height: "60px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.3)",
-        }}
+        className="position-fixed add-task-button"
       >
         <FaPlus style={{ fontSize: "24px", color: "white" }} />
       </Button>
@@ -41,9 +29,7 @@ const AddTaskButtonWithModal = () => {
           <Modal.Title>Add a New Task</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <AddTask
-            setShowAddTaskModal={setShowAddTaskModal}
-          />
+          <AddTaskForm setShowAddTaskModal={setShowAddTaskModal} />
         </Modal.Body>
       </Modal>
     </>

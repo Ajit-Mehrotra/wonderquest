@@ -4,19 +4,17 @@ import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { signInWithGoogle, getSignupFriendlyErrorMessage } from "services/auth";
 import { AuthContext } from "context/AuthContext";
 import { createUserProfile } from "services/api";
-
-// import { createUserProfile } from "services/api";
-// import { AuthContext } from "context/AuthContext";
+import { ThemeContext } from "context/ThemeContext";
 
 function Signup() {
-  const { setUser, setAuthLoading } = useContext(AuthContext);
+  const { setUser, authLoading, setAuthLoading } = useContext(AuthContext);
+  const { isDarkMode } = useContext(ThemeContext);
   const [name, setName] = useState("");
   const [formEmail, setFormEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
   const validateEmail = (email) => {
-    // Regular expression for validating an email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
@@ -30,12 +28,13 @@ function Signup() {
     try {
       setAuthLoading(true);
       await signInWithGoogle();
-      setAuthLoading(false);
-      console.debug("Logged In");
     } catch (error) {
       console.error("Google login error:", error);
+    } finally {
+      setAuthLoading(false);
     }
   };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     setError(""); // Clear previous errors before new attempt
@@ -79,12 +78,12 @@ function Signup() {
       });
 
       setUser({ ...updatedAuthUser, ...userProfile });
-      console.log("[signup.jsx]", "user has been set");
-      setAuthLoading(false);
     } catch (error) {
       console.error("Signup error:", error);
       const friendlyMessage = getSignupFriendlyErrorMessage(error.code);
       setError(friendlyMessage || "An error occurred during sign up.");
+    } finally {
+      setAuthLoading(false);
     }
   };
 
@@ -93,7 +92,7 @@ function Signup() {
       <div className="card p-4" style={{ maxWidth: "400px", width: "100%" }}>
         <h2 className="text-center mb-4">Sign Up</h2>
         <form onSubmit={handleSubmit}>
-          <div className="mb-3">
+          <div className={`mb-3 ${isDarkMode ? "text-white-50" : ""}`}>
             <label htmlFor="name" className="form-label">
               Full Name
             </label>
@@ -105,7 +104,7 @@ function Signup() {
               required
             />
           </div>
-          <div className="mb-3">
+          <div className={`mb-3 ${isDarkMode ? "text-white-50" : ""}`}>
             <label htmlFor="email" className="form-label">
               Email address
             </label>
@@ -117,7 +116,7 @@ function Signup() {
               required
             />
           </div>
-          <div className="mb-3">
+          <div className={`mb-3 ${isDarkMode ? "text-white-50" : ""}`}>
             <label htmlFor="password" className="form-label">
               Password
             </label>
@@ -136,8 +135,12 @@ function Signup() {
             </div>
           )}
 
-          <button type="submit" className="btn btn-primary w-100">
-            Sign Up
+          <button
+            type="submit"
+            className="btn btn-primary w-100"
+            disabled={authLoading}
+          >
+            {authLoading ? "Loading..." : "Sign Up"}
           </button>
         </form>
 

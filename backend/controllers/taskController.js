@@ -11,6 +11,7 @@ import {
   updateTaskInDB,
   getTaskFromDB,
   deleteTaskFromDB,
+  deleteAllTasksFromDB,
 } from "../models/taskModel.js";
 import { defaultStatus } from "../config.js";
 
@@ -224,5 +225,16 @@ export const deleteTask = async (req, res) => {
     res
       .status(500)
       .json({ error: "Failed to delete task", details: error.message });
+  }
+};
+
+export const deleteAllTasks = async (req, res) => {
+  const { user_id: userId } = req.user;
+  try {
+    await deleteAllTasksFromDB(userId);
+    res.status(200).send({ message: "All tasks deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting tasks:", error);
+    res.status(500).send({ message: "Failed to delete tasks" });
   }
 };

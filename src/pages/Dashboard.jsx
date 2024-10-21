@@ -14,6 +14,7 @@ const Dashboard = () => {
 
   const handleDragEnd = async (result) => {
     const { destination, source, draggableId } = result;
+    const { originalTasks } = { ...tasks };
 
     // Make no changes if dropped in the same place
     if (
@@ -92,10 +93,13 @@ const Dashboard = () => {
       await fetchTasks(user, setTasks);
     } catch (error) {
       console.error("Failed to update and move task:", error);
+      setTasks(originalTasks);
+      alert("Failed to move the task. Changes have been reverted.");
     }
   };
 
   const handleDeleteTask = async (taskId, status) => {
+    const originalTasks = { ...tasks };
     setTasks((prevTasks) => {
       const newTasks = { ...prevTasks };
       newTasks[status] = newTasks[status].filter((task) => task.id !== taskId);
@@ -106,6 +110,7 @@ const Dashboard = () => {
       await deleteTask(taskId, user.uid);
     } catch (error) {
       console.error("Failed to delete task:", error);
+      setTasks(originalTasks);
     }
   };
 
@@ -134,7 +139,7 @@ const Dashboard = () => {
   }
 
   return (
-    <div>
+    <div className="container text-center">
       <DragDropContext onDragEnd={handleDragEnd}>
         <Row>
           {Object.entries(tasks).map(([columnId]) => (

@@ -1,5 +1,14 @@
 /* This is the main CSS file for the App component */
 
+@font-face {
+  font-family: "Biriyani";
+  src: url("../assets/fonts/Biryani.ttf") format("ttf");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/*  */
 .App {
   text-align: center;
 }
@@ -31,32 +40,34 @@
   margin: 10px;
 }
 
-.size-badge {
+/* TaskCard.css */
+.badge-label {
+  font-size: 0.8em;
+  font-weight: bold;
+}
+
+.task-badge {
   background-color: #e7e6e6 !important;
   color: #303030 !important;
 }
 
-.badge-label {
-  font-size: 0.8em; /* Adjust the size as needed */
-  color: #303030; /* Adjust the color as needed */
-  font-weight: bold; /* Add this line to make the text bold */
-}
-
-.urgency-badge {
-  background-color: #f0efef !important;
-  color: #303030 !important;
-}
-
-.value-badge {
-  background-color: #f0efef !important;
-  color: #303030 !important;
+[data-bs-theme="dark"] .task-badge {
+  background-color: rgb(61, 67, 71) !important;
+  color: #e7e6e6 !important;
 }
 
 /* AddTask.css */
+
+[data-bs-theme="dark"] .modal-body {
+  background-color: rgb(22, 24, 25);
+}
+
+[data-bs-theme="dark"] .modal-header {
+  background-color: rgb(22, 24, 25);
+}
 .add-task-card {
   border-radius: 15px;
   border: none;
-  background: #f8f9fa; /* Light background */
 }
 
 .add-task-card .form-label {
@@ -68,6 +79,12 @@
   border-radius: 10px;
   padding: 10px;
   border: 1px solid #ddd;
+}
+
+[data-bs-theme="dark"] .add-task-card .form-control,
+[data-bs-theme="dark"] .add-task-card .form-select {
+  color: #e7e6e6;
+  border-color: rgb(62, 68, 70);
 }
 
 .add-task-card h2 {
@@ -85,3 +102,12 @@
   background-color: #0056b3; /* Darker blue on hover */
 }
 
+body.dark {
+  background-color: rgb(27, 30, 31); /* Dark background */
+  color: rgb(232, 230, 227); /* Light text color */
+}
+
+body.light {
+  background-color: #f8f9fa; /* Light background */
+  color: black; /* Dark text color */
+}

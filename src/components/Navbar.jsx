@@ -5,9 +5,14 @@ import "../styles/Navbar.css";
 import { AuthContext } from "context/AuthContext";
 import { firebaseSignOut } from "services/auth";
 import { useNavigate } from "react-router-dom";
+import { ThemeContext } from "context/ThemeContext";
+import ThemeToggle from "./settings/ThemeToggle";
+import logoDark from "../assets/logos/logoDark.png";
+import logoLight from "../assets/logos/logoLight.png";
 
 function NavbarComponent() {
   const { user, setUser } = useContext(AuthContext);
+  const { isDarkMode } = useContext(ThemeContext);
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -24,7 +29,7 @@ function NavbarComponent() {
     return (
       <>
         <Nav>
-          <Nav.Link as={Link} to="/dashboard" className="nav-link-custom">
+          <Nav.Link as={Link} to="/dashboard" className="nav-link-custom ">
             Dashboard
           </Nav.Link>
           <Nav.Link as={Link} to="/settings" className="nav-link-custom">
@@ -32,7 +37,7 @@ function NavbarComponent() {
           </Nav.Link>
         </Nav>
         <Button
-          variant="outline-primary"
+          variant="outline-primary "
           className="custom-logout"
           onClick={handleLogout}
         >
@@ -54,18 +59,29 @@ function NavbarComponent() {
       </>
     );
   };
-
+  console.log("isDarkMode", isDarkMode);
   return (
-    <Navbar expand="lg" className="custom-navbar">
-      {" "}
+    <Navbar
+      expand="lg"
+      className={`custom-navbar container text-center mt-4 ${
+        isDarkMode ? "bg-dark" : "bg-white"
+      }`}
+    >
       {/* Custom styling */}
       <Container>
         <Navbar.Brand as={Link} to="/" className="brand-name">
-          Auto-Kanban
+          <div className="brand-logo-container">
+            <img
+              src={isDarkMode ? logoDark : logoLight}
+              alt="WonderQuest Logo"
+              className="brand-logo"
+            />
+          </div>
         </Navbar.Brand>{" "}
         {/* Website Name */}
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav" className="justify-content-end">
+          <ThemeToggle />
           {user ? <UserLinks /> : <GuestLinks />}
         </Navbar.Collapse>
       </Container>
