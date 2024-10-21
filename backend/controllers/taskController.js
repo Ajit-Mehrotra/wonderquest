@@ -234,7 +234,6 @@ export const deleteAllTasks = async (req, res) => {
     await deleteAllTasksFromDB(userId);
     res.status(200).send({ message: "All tasks deleted successfully" });
   } catch (error) {
-    console.error("Error deleting tasks:", error);
-    res.status(500).send({ message: "Failed to delete tasks" });
+    res.status(500).send({ message: `Failed to delete tasks ${error}` });
   }
 };

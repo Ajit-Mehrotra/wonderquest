@@ -168,7 +168,6 @@ export const updateUserEmail = async (req, res) => {
   const { email } = req.body;
 
   try {
-
     await updateUserEmailInDB(userId, email);
     res.status(200).json({ message: "Email updated successfully" });
   } catch (error) {
@@ -187,7 +186,6 @@ export const deleteUser = async (req, res) => {
     await deleteUserFromDB(userId);
     res.status(200).send({ message: "User account deleted successfully" });
   } catch (error) {
-    console.error("Error deleting user account:", error);
-    res.status(500).send({ message: "Failed to delete user account" });
+    res.status(500).send({ message: `Failed to delete user account,${error}` });
   }
 };

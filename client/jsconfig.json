@@ -12,7 +12,9 @@
       "jsx": "react",                        
       "checkJs": true,                      
       "esModuleInterop": true,              
-      "forceConsistentCasingInFileNames": true 
+      "forceConsistentCasingInFileNames": true ,
+      "types": ["vite/client",]
+      
     },
     "include": ["src/**/*"],                
     "exclude": ["node_modules", "**/node_modules/*"] 

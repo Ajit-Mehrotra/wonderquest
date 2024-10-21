@@ -40,7 +40,6 @@ export const updateDisplayNameInDB = async (userId, displayName) => {
 
 export const updateUserEmailInDB = async (userId, email) => {
   const userRef = admin.firestore().collection("users").doc(userId);
-  console.log(email);
   await userRef.update({
     email,
   });

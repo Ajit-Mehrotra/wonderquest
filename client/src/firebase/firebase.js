@@ -3,14 +3,14 @@ import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { GoogleAuthProvider } from "firebase/auth";
 
-const API_KEY = process.env.REACT_APP_FIREBASE_AUTH_API_KEY;
-const AUTH_DOMAIN = process.env.REACT_APP_FIREBASE_AUTH_DOMAIN;
-const PROJECT_ID = process.env.REACT_APP_FIREBASE_AUTH_PROJECT_ID;
-const STORAGE_BUCKET = process.env.REACT_APP_FIREBASE_AUTH_STORAGE_BUCKET;
-const MESSAGING_SENDER_ID =
-  process.env.REACT_APP_FIREBASE_AUTH_MESSAGING_SENDER_ID;
-const APP_ID = process.env.REACT_APP_FIREBASE_AUTH_APP_ID;
-const MEASUREMENT_ID = process.env.REACT_APP_FIREBASE_AUTH_MEASUREMENT_ID;
+const API_KEY = import.meta.env.VITE_APP_FIREBASE_AUTH_API_KEY;
+const AUTH_DOMAIN = import.meta.env.VITE_APP_FIREBASE_AUTH_DOMAIN;
+const PROJECT_ID = import.meta.env.VITE_APP_FIREBASE_AUTH_PROJECT_ID;
+const STORAGE_BUCKET = import.meta.env.VITE_APP_FIREBASE_AUTH_STORAGE_BUCKET;
+const MESSAGING_SENDER_ID = import.meta.env
+  .VITE_APP_FIREBASE_AUTH_MESSAGING_SENDER_ID;
+const APP_ID = import.meta.env.VITE_APP_FIREBASE_AUTH_APP_ID;
+const MEASUREMENT_ID = import.meta.env.VITE_APP_FIREBASE_AUTH_MEASUREMENT_ID;
 
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries

@@ -1,7 +1,8 @@
 # Local Netlify folder
-.netlify
-.env
-node_modules
-/build
+backend/.env
+client/.env
+backend/node_modules
+client/node_modules
+client/build
 .DS_Store
 backend/serviceAccountKey.json

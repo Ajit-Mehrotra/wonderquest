@@ -1,7 +1,6 @@
 import { auth } from "../firebase/firebase";
 
-// eslint-disable-next-line no-undef
-const backendUrl = process.env.REACT_APP_BACKEND_SERVER_URL;
+const backendUrl = import.meta.env.VITE_APP_BACKEND_SERVER_URL;
 
 export const createUserProfile = async ({ email, displayName = null }) => {
   try {

@@ -4,28 +4,26 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "preinstall": "npx node@14.18.3",
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "start": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@dotenvx/dotenvx": "^1.14.0",
+    "@dotenvx/dotenvx": "^1.20.0",
     "@types/react-bootstrap": "^0.32.37",
     "@vitejs/plugin-react": "^4.3.3",
     "auto_kanban": "file:",
     "bootstrap": "^5.3.3",
-    "firebase": "^10.13.1",
-    "react": "^17.0.2",
+    "firebase": "^10.14.1",
+    "react": "^18.3.1",
     "react-beautiful-dnd": "^13.1.1",
-    "react-bootstrap": "^2.10.2",
-    "react-dom": "^17.0.2",
+    "react-bootstrap": "^2.10.5",
+    "react-dom": "^18.3.1",
     "react-icons": "^5.3.0",
-    "react-router-dom": "^6.26.1",
+    "react-router-dom": "^6.27.0",
     "vite": "^5.4.9",
     "vite-tsconfig-paths": "^5.0.1"
   },
@@ -42,8 +40,8 @@
     ]
   },
   "devDependencies": {
-    "@eslint/js": "^9.12.0",
-    "eslint": "^8.57.1",
+    "@eslint/js": "^9.13.0",
+    "eslint": "^9.13.0",
     "eslint-plugin-react": "^7.37.1",
     "globals": "^15.11.0"
   }
