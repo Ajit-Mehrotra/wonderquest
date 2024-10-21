@@ -1,0 +1,50 @@
+{
+  "name": "auto_kanban",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "preinstall": "npx node@14.18.3",
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@dotenvx/dotenvx": "^1.14.0",
+    "@types/react-bootstrap": "^0.32.37",
+    "@vitejs/plugin-react": "^4.3.3",
+    "auto_kanban": "file:",
+    "bootstrap": "^5.3.3",
+    "firebase": "^10.13.1",
+    "react": "^17.0.2",
+    "react-beautiful-dnd": "^13.1.1",
+    "react-bootstrap": "^2.10.2",
+    "react-dom": "^17.0.2",
+    "react-icons": "^5.3.0",
+    "react-router-dom": "^6.26.1",
+    "vite": "^5.4.9",
+    "vite-tsconfig-paths": "^5.0.1"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.12.0",
+    "eslint": "^8.57.1",
+    "eslint-plugin-react": "^7.37.1",
+    "globals": "^15.11.0"
+  }
+}
