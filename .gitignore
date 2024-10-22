@@ -3,6 +3,7 @@ backend/.env
 client/.env
 backend/node_modules
 client/node_modules
-client/build
+client/dist
 .DS_Store
 backend/serviceAccountKey.json
+client/.gitignore

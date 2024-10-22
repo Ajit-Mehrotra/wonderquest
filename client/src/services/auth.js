@@ -40,7 +40,6 @@ export const signInWithGoogle = async () => {
   try {
     const result = await signInWithPopup(auth, googleProvider);
     const user = result.user;
-    console.log("Google User:", user);
     // You can handle additional actions like saving user info in Firestore
     const { email, displayName } = user;
     await createUserProfile({ email, displayName });

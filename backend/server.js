@@ -6,15 +6,18 @@ import { verifyToken } from "./utils/authTokenMiddleware.js";
 import userRouter from "./routes/userRoutes.js";
 import taskRouter from "./routes/taskRoutes.js";
 
-dotenv.config();
+if (process.env.NODE_ENV !== "production") {
+  dotenv.config();
+}
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+const CORS_ORIGIN = process.env.CORS_ORIGIN || "http://localhost:3000";
 
 // Configure CORS to allow requests from your frontend
 app.use(
   cors({
-    origin: "http://localhost:3000", // Allow requests from your frontend URL
+    origin: CORS_ORIGIN, // Allow requests from your frontend URL
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE", // Allowed methods
     credentials: true, // Allow credentials
   })

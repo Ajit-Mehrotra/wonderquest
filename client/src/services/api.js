@@ -124,7 +124,7 @@ export const deleteUserAccount = async (userId) => {
 };
 
 export const fetchTasksFromApi = async (userId) => {
-  console.log("Hit API to Fetch Tasks from Backend:");
+  console.log("Trying to hit API to Fetch Tasks from Backend:");
   try {
     const user = auth.currentUser;
     const token = await user.getIdToken();
