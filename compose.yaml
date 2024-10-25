@@ -8,7 +8,7 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=3001
-      - CORS_ORIGIN=http://localhost:3000
+      - CORS_ORIGIN=http://3.145.192.186
     networks:
       - app-network
 
@@ -17,7 +17,7 @@ services:
       context: ./client
       dockerfile: Dockerfile
       args:
-        - VITE_APP_BACKEND_SERVER_URL=http://localhost:3001
+        - VITE_APP_BACKEND_SERVER_URL=http://3.145.192.186:3001
         - VITE_APP_FIREBASE_AUTH_API_KEY=AIzaSyBUXzuHWGi4vHXzN2CDSvqn6iJmPagCCvw
         - VITE_APP_FIREBASE_AUTH_DOMAIN=auto-kanban.firebaseapp.com
         - VITE_APP_FIREBASE_AUTH_PROJECT_ID=auto-kanban
@@ -26,7 +26,7 @@ services:
         - VITE_APP_FIREBASE_AUTH_APP_ID=1:769788129508:web:1237f78c8d61131110bcf1
         - VITE_APP_FIREBASE_AUTH_MEASUREMENT_ID=G-1234567890
     ports:
-      - "3000:3000"
+      - "80:80"
     depends_on:
       - backend
     networks:
