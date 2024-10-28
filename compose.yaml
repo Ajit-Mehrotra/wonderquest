@@ -8,7 +8,9 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=3001
-      - CORS_ORIGIN=http://3.145.192.186
+      - CORS_ORIGIN=https://wonderquest.ajitm.com
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt
     networks:
       - app-network
 
@@ -17,7 +19,7 @@ services:
       context: ./client
       dockerfile: Dockerfile
       args:
-        - VITE_APP_BACKEND_SERVER_URL=http://3.145.192.186:3001
+        - VITE_APP_BACKEND_SERVER_URL=https://wonderquest.ajitm.com
         - VITE_APP_FIREBASE_AUTH_API_KEY=AIzaSyBUXzuHWGi4vHXzN2CDSvqn6iJmPagCCvw
         - VITE_APP_FIREBASE_AUTH_DOMAIN=auto-kanban.firebaseapp.com
         - VITE_APP_FIREBASE_AUTH_PROJECT_ID=auto-kanban

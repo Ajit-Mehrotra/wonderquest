@@ -1,6 +1,8 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import fs from "fs";
+import https from "https";
 
 import { verifyToken } from "./utils/authTokenMiddleware.js";
 import userRouter from "./routes/userRoutes.js";
@@ -13,6 +15,18 @@ if (process.env.NODE_ENV !== "production") {
 const app = express();
 const PORT = process.env.PORT || 3001;
 const CORS_ORIGIN = process.env.CORS_ORIGIN || "http://localhost:3000";
+let sslOptions;
+
+try {
+  sslOptions = {
+    key: fs.readFileSync('/etc/letsencrypt/live/wonderquest.ajitm.com/privkey.pem'),
+    cert: fs.readFileSync('/etc/letsencrypt/live/wonderquest.ajitm.com/fullchain.pem'),
+  };
+} catch (error) {
+  console.error("Failed to load SSL certificates:", error);
+  process.exit(1); // Exit the app if the certificates cannot be loaded
+}
+
 
 // Configure CORS to allow requests from your frontend
 app.use(
@@ -36,6 +50,8 @@ console.log("Routes added");
 // });
 
 // Start the server
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+
+https.createServer(sslOptions, app).listen(PORT, () => {
+    console.log(`Server running on https://localhost:${PORT}`);
+  });
+
