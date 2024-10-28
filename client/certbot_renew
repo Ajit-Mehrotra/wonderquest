@@ -1,0 +1,1 @@
+0 2 * * * /usr/bin/certbot renew --quiet --deploy-hook "nginx -s reload" >> /var/log/letsencrypt/renewal_log.txt 2>&1

@@ -35,5 +35,6 @@ RUN apk add --no-cache certbot certbot-nginx
 RUN apk add vim
 COPY --from=build /app/dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY certbot_renew /etc/crontabs/root
 EXPOSE 80 443
 CMD ["nginx", "-g", "daemon off;"]
