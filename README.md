@@ -3,7 +3,7 @@ Wonderquest is a kanban application designed to help users automatically priorit
 
 You can also check out the live version at: [wonderquest.ajitm.com](https://wonderquest.ajitm.com). 
 
-![](./src/assets/demo/demoLight.gif)
+![](./client/src/assets/demo/demoLight.gif)
 
 ## Features
 
