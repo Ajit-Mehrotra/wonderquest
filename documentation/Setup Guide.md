@@ -15,7 +15,7 @@ $ git clone <repository-url>
 $ cd <project-folder>
 ```
 
-## Environment Variables
+### Local Setup - Environment Variables
 
 Create a .env file for both backend and frontend to store sensitive data.
 
@@ -156,7 +156,7 @@ This guide assumes that you have bought your domain, but have not set up SSL to 
 
 The enviornment variables that would be traditionally (in a local enviornment) be an `.env` are in the `compose.yaml` file under `args`. I've created a `template.compose.yaml`. Just delete the `template` part and fill in your details.
 
-The setup is similar to the setup previously described in the [local enviornment variables setup](#environment-variables) except:
+The setup is similar to the setup previously described in the [local enviornment variables setup](#local-setup---environment-variables) except:
 * You're going to be using the **http** version of your domain (and no port number) instead of localhost:port. 
 * You're going to have to manually create a file called `serviceAccountKey.json` in the `backend` folder
 
