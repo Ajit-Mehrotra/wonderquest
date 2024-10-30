@@ -10,7 +10,6 @@ You can also check out the live version at: [wonderquest.ajitm.com](https://wond
 * Automatic Task Prioritization: Uses customizable formulas to assign priority scores to tasks.
 * Task Management: Add, edit, delete, and reorder tasks using drag-and-drop.
 * Focus mode: focus on what needs to be done, not what has already been completed
-* Full Task Management: Create, edit, delete tasks. You can even delete all of your tasks at once.
 * Linked-List Based Dragging: Optimized task reordering with a linked-list implementation for smooth performance.
 * OAuth Integration: Supports authentication via Google Sign-In.
 * SSL/TLS Support: Secure HTTPS configuration with Let's Encrypt certificates.
