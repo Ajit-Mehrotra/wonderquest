@@ -17,16 +17,16 @@ const PORT = process.env.PORT || 3001;
 const CORS_ORIGIN = process.env.CORS_ORIGIN || "http://localhost:3000";
 let sslOptions;
 
+//Comment out for HTTP
 try {
   sslOptions = {
-    key: fs.readFileSync('/etc/letsencrypt/live/wonderquest.ajitm.com/privkey.pem'),
-    cert: fs.readFileSync('/etc/letsencrypt/live/wonderquest.ajitm.com/fullchain.pem'),
+    key: fs.readFileSync("/etc/letsencrypt/live/[YOUR DOMAIN]/privkey.pem"),
+    cert: fs.readFileSync("/etc/letsencrypt/live/[YOUR DOMAIN]/fullchain.pem"),
   };
 } catch (error) {
   console.error("Failed to load SSL certificates:", error);
   process.exit(1); // Exit the app if the certificates cannot be loaded
 }
-
 
 // Configure CORS to allow requests from your frontend
 app.use(
@@ -49,9 +49,12 @@ console.log("Routes added");
 //   res.send("CORS is configured correctly!");
 // });
 
-// Start the server
+//Use for HTTP, comment out for HTTPS
+// app.listen(PORT, () => {
+//   console.log(`Server running on port ${PORT}`);
+// });
 
+//Use for HTTPS, comment out for HTTP
 https.createServer(sslOptions, app).listen(PORT, () => {
-    console.log(`Server running on https://localhost:${PORT}`);
-  });
-
+  console.log(`Server running on port ${PORT}`);
+});

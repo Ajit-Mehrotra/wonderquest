@@ -1,0 +1,78 @@
+                                                ┌───────────────────────────────┐                                         
+                                                │        User's Browser         │                                         
+                                                │                               │                                         
+                                                │      wonderquest.ajitm.com    │                                         
+                                                └───────────────┬───────────────┘                                         
+                                                                │                                                         
+                                                                │                                                         
+                                                                │                                                         
+                                                                │                                                         
+                                                           [HTTPS/HTTP]                                                   
+                                                                │                                                         
+                                                                │                                                         
+                                                                │                                                         
+                                                                │                                                         
+                                                                ▼                                                         
+                                                   +---------------------------+                                          
+                                                   |      Cloudflare DNS       |                                          
+                                                   | - Domain & SSL Settings   |                                          
+                                                   | - Points subdomain to EC2 |                                          
+                                                   +------------+--------------+                                          
+                                                                |                                                         
+                                                                |                                                         
+                                                           [HTTPS/HTTP]                                                   
+                                                                |                                                         
+                                                   +------------v--------------+                                          
+                                                   |     EC2 Instance          |                                          
+                                                   |  (AWS Ubuntu Server)      |                                          
+                                                   |                           |                                          
+                                                   | - Runs Docker containers  |                                          
+                                                   +--------------+------------+                                          
+                                                                  |                                                       
+                                                  ┌───────────────────────────────┐                                       
+                                                  │               |               │                                       
+                                                  │    +----------v---------+     │                                       
+                                                  │    |    Reverse Proxy   |     │                                       
+                                                  │    |(Nginx Docker Image)|     │                                       
+                                                  │    |                    |     │                                       
+                                                  │    |--------------------|     │                                       
+                                                  │    | - Listens on ports |     │                                       
+                                                  │    |   80 and 443       |     │                                       
+                                                  │    |                    |     │                                       
+                                                  │    | - Proxies /api     |     │                                       
+                                                  │    |   requests to      |     │                                       
+                                                  │    |   Backend on port  |     │                                       
+                                                  │    |   3001             |     │                                       
+                                                  │    |                    |     │                                       
+                                                  │    | - Proxies /        |     │                                       
+                                                  │    |   requests to      |     │                                       
+                                                  │    |   serve static     |     │                                       
+                                                  │    |   html/js/css via  |     │                                       
+                                                  │    |   Nginx            |     │                                       
+┌─────────────────────────────────────────────────┘    +----------+---------+     │                                       
+│                                                                 |               │                                       
+│                    "FRONTEND DOCKER"                            |               │                                       
+│                                                              ┌──|───────────────┘                                       
+│      +---------------------+                                 │  |                                                       
+│      |    Let’s Encrypt    |                                 │  |                                                       
+│      |   SSL Certificates  |                                 │  |                                                       
+│      |---------------------|<------------------+----------------+--------------------+                                  
+│      | - Mounted in Nginx  |                   |             │                       |                                  
+│      |   Docker & Host EC2 |                   |             │         ┌───────────  |  ───────────────────────────────┐
+│      |   volume            |         +---------v----------+  │         │  +----------v----------+                      │
+│      +----------+----------+         |      Frontend      |  │         │  |       Backend       |                      │
+│                 |                    | [Internal Network] |  │         │  |       (Docker)      |                      │
+│                 |                    |--------------------|  │         │  |---------------------|                      │
+│      +----------v---------+          | - The React app    |  │         │  | - Node.js server    |                      │
+│      |      Certbot       |          |   which is used to |  │         │  |   (Express API)     |    "BACKEND DOCKER"  │
+│      |    (Within Nginx)  |          |   create static    |  │         │  | - Handles API       |                      │
+│      |--------------------|          |   html/css/js for  |  │         │  |   requests for data |                      │
+│      | - Certbot runs     |          |   Ngnix            |  │         │  |   manipulation      |                      │
+│      |   automatically    |          +----------+---------+  │         │  | - Listens on        |                      │
+│      |   in Nginx         |                                  │         │  |   internal port 3001|                      │
+│      | - Renews SSL certs |                                  │         │  +---------------------+                      │
+│      |   every 2 months   |                                  │         │                                               │
+│      +--------------------+                                  │         └───────────────────────────────────────────────┘
+│                                                              │                                                          
+│                                                              │                                                          
+└──────────────────────────────────────────────────────────────┘                                                          
