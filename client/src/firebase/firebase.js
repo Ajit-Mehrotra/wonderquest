@@ -16,13 +16,13 @@ const MEASUREMENT_ID = import.meta.env.VITE_APP_FIREBASE_AUTH_MEASUREMENT_ID;
 // https://firebase.google.com/docs/web/setup#available-libraries
 
 const firebaseConfig = {
-  apiKey: `${API_KEY}`,
-  authDomain: `${AUTH_DOMAIN}`,
-  projectId: `${PROJECT_ID}`,
-  storageBucket: `${STORAGE_BUCKET}`,
-  messagingSenderId: `${MESSAGING_SENDER_ID}`,
-  appId: `${APP_ID}`,
-  measurementId: `${MEASUREMENT_ID}`,
+  apiKey: API_KEY,
+  authDomain: AUTH_DOMAIN,
+  projectId: PROJECT_ID,
+  storageBucket: STORAGE_BUCKET,
+  messagingSenderId: MESSAGING_SENDER_ID,
+  appId: APP_ID,
+  measurementId: MEASUREMENT_ID,
 };
 
 // Initialize Firebase

@@ -74,7 +74,7 @@ function AddTaskForm({ setShowAddTaskModal }) {
 
     const taskWithPriority = { ...taskData, priority: priority };
 
-    await addTask({ userId: user.uid, task: taskWithPriority });
+    await addTask({ task: taskWithPriority });
     setShowAddTaskModal(false);
     await fetchTasks(user, setTasks);
   };

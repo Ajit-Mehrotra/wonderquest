@@ -1,8 +1,10 @@
 import {
-  getTasks,
   addTask,
+  getTasks,
+  getTaskWeights,
   updateTask,
   reorderTasks,
+  updateTaskWeights,
   deleteTask,
   deleteAllTasks,
 } from "../controllers/taskController.js";
@@ -10,22 +12,28 @@ import {
 import express from "express";
 const router = express.Router();
 
-// Fetch tasks for the authenticated user
-router.get("/", getTasks);
-
-// Add New Task & re-order the linked list
+/**------------------------------------------------------------------------
+ *                        CRUD: Creating Tasks
+ *------------------------------------------------------------------------**/
 router.post("/", addTask);
 
-// Delete all tasks
-router.delete("/", deleteAllTasks);
+/**------------------------------------------------------------------------
+ *                        CRUD: Reading Tasks
+ *------------------------------------------------------------------------**/
+router.get("/", getTasks);
+router.get("/weights", getTaskWeights);
 
-//Update Task based off new details & re-order the linked list
+/**------------------------------------------------------------------------
+ *                        CRUD: Updating Tasks
+ *------------------------------------------------------------------------**/
 router.patch("/:taskId", updateTask);
-
-//Reorder Dragged Tasks
 router.patch("/reorder/:taskId", reorderTasks);
+router.patch("/weights", updateTaskWeights);
 
-//Delete Task & re-order the linked list
-router.delete("/:taskId", deleteTask);
+/**------------------------------------------------------------------------
+ *                        CRUD: Deleting Tasks
+ *------------------------------------------------------------------------**/
+router.delete("/:taskId", deleteTask); // --> also reorders list after deletion
+router.delete("/", deleteAllTasks);
 
 export default router;

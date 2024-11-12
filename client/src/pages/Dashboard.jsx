@@ -8,93 +8,157 @@ import { AuthContext } from "context/AuthContext";
 import { fetchTasks, TaskContext } from "context/TaskContext";
 import AddTaskButtonWithModal from "../components/kanban-board/task/AddTaskButton";
 
+//TODO: Add Memoization and useCallback to optimize performance
+//TODO: refactor dragging logic further
+
+/**
+ * TODO: SMELLY CODE, refactor later
+ * Handles the end of a drag operation, updating the task's position and
+ * references of adjacent tasks. Returns the updated tasks and a flag
+ * indicating if a server-side update is required.
+ *
+ * @param {Object} dragResult - The result of the drag operation
+ * @param {Object} tasks - The current tasks
+ * @returns {Object} - The updated tasks and a flag indicating if a server-side
+ * update is required
+ */
+
+export const handleDragEnd = (dragResult, tasks) => {
+  const { destination, source, draggableId } = dragResult;
+
+  // Return early if no change is needed
+  if (
+    !destination ||
+    (destination.droppableId === source.droppableId &&
+      destination.index === source.index)
+  ) {
+    return { tasks, updateRequired: false };
+  }
+
+  const newTasks = { ...tasks };
+  const sourceList = [...tasks[source.droppableId]];
+  const destinationList =
+    destination.droppableId === source.droppableId
+      ? sourceList
+      : [...tasks[destination.droppableId]];
+
+  // Update the task's position to dragged location
+  const { movedTask, updatedSourceList, updatedDestinationList } =
+    updateTaskPosition(
+      sourceList,
+      destinationList,
+      source.index,
+      destination.index
+    );
+
+  // Get the adjacent task IDs for the new position
+  const { targetPrevTaskId, targetNextTaskId } = getAdjacentTaskIds(
+    updatedDestinationList,
+    destination.index
+  );
+
+  movedTask.prevTaskId = targetPrevTaskId;
+  movedTask.nextTaskId = targetNextTaskId;
+
+  // Update neighboring tasks in destination list
+  if (targetPrevTaskId) {
+    updatedDestinationList[destination.index + 1].nextTaskId = movedTask.id;
+  }
+  if (targetNextTaskId) {
+    updatedDestinationList[destination.index - 1].prevTaskId = movedTask.id;
+  }
+
+  // Update tasks in their respective columns
+  newTasks[source.droppableId] = updatedSourceList;
+  newTasks[destination.droppableId] = updatedDestinationList;
+
+  return {
+    tasks: newTasks,
+    updateRequired: true,
+    reorderData: {
+      taskId: draggableId,
+      targetPrevTaskId,
+      targetNextTaskId,
+      status: destination.droppableId,
+    },
+  };
+};
+export const updateTaskPosition = (
+  sourceList,
+  destinationList,
+  sourceIndex,
+  destinationIndex
+) => {
+  // Remove the moved task from its original spot and return it
+  const [movedTask] = sourceList.splice(sourceIndex, 1);
+
+  // Insert the moved task into its new destination
+  destinationList.splice(destinationIndex, 0, movedTask);
+
+  return {
+    movedTask,
+    updatedSourceList: sourceList,
+    updatedDestinationList: destinationList,
+  };
+};
+
+export const getAdjacentTaskIds = (destinationList, destinationIndex) => {
+  // Determine prevTaskId and nextTaskId in the new position
+  let targetPrevTaskId = null;
+  let targetNextTaskId = null;
+
+  if (destinationIndex < destinationList.length - 1) {
+    targetPrevTaskId = destinationList[destinationIndex + 1].id; // Previous task
+  }
+  if (destinationIndex > 0) {
+    targetNextTaskId = destinationList[destinationIndex - 1].id; // Next task
+  }
+  return { targetPrevTaskId, targetNextTaskId };
+};
+
+export const updateBackend = async (
+  reorderData,
+  user,
+  setTasks,
+  originalTasks
+) => {
+  try {
+    await reorderTasks({
+      taskId: reorderData.taskId,
+      targetPrevTaskId: reorderData.targetPrevTaskId,
+      targetNextTaskId: reorderData.targetNextTaskId,
+      status: reorderData.status,
+    });
+
+    // Refresh tasks after the change to reflect backend order
+    await fetchTasks(user, setTasks);
+  } catch (error) {
+    console.error("Failed to update and move task:", error);
+    setTasks(originalTasks); // Rollback tasks to the original state on error
+    alert("Failed to move the task. Changes have been reverted.");
+  }
+};
+
 const Dashboard = () => {
   const { user, authLoading } = useContext(AuthContext);
   const { tasks, setTasks } = useContext(TaskContext);
 
-  const handleDragEnd = async (result) => {
-    const { destination, source, draggableId } = result;
-    const { originalTasks } = { ...tasks };
+  const onDragEnd = async (dragResult) => {
+    const originalTasks = { ...tasks }; // Keep a copy for potential rollback
 
-    // Make no changes if dropped in the same place
-    if (
-      !destination ||
-      (destination.droppableId === source.droppableId &&
-        destination.index === source.index)
-    ) {
-      return;
-    }
+    // Call handleDragEnd to update tasks locally
+    const {
+      tasks: newTasks,
+      updateRequired,
+      reorderData,
+    } = handleDragEnd(dragResult, tasks);
 
-    const newTasks = { ...tasks };
-    // Extract current state of tasks
-
-    //get source column's tasks before the dragging (current state of column)
-    const start = [...tasks[source.droppableId]];
-
-    // get destination column's tasks before the dragging (current state of column)
-    const finish =
-      destination.droppableId === source.droppableId
-        ? start
-        : [...tasks[destination.droppableId]];
-
-    // Remove the moved task from its original spot and return it
-    const [movedTask] = start.splice(source.index, 1);
-
-    // Insert the moved task into its new destination
-    finish.splice(destination.index, 0, movedTask);
-
-    // Update task status to the new column
-    movedTask.status = destination.droppableId;
-
-    // Determine prevTaskId and nextTaskId in the new position
-    let targetPrevTaskId = null;
-    let targetNextTaskId = null;
-
-    if (destination.index < finish.length - 1) {
-      targetPrevTaskId = finish[destination.index + 1].id; // Previous task
-    }
-    if (destination.index > 0) {
-      targetNextTaskId = finish[destination.index - 1].id; // Next task
-    }
-
-    // This is here to make the UI load more optimistically. However, this may be overwritten by the fetchTasks API call later.
-    // Will be overwritten when tasks are moved to a different column. Backend will re-prioritize based on priority number and ignorePriority boolean.
-
-    // -- START -- might be overwritten:
-    movedTask.prevTaskId = targetPrevTaskId;
-    movedTask.nextTaskId = targetNextTaskId;
-
-    // Update neighboring tasks' references if necessary
-    if (targetPrevTaskId) {
-      finish[destination.index + 1].nextTaskId = movedTask.id;
-    }
-    if (targetNextTaskId) {
-      finish[destination.index - 1].prevTaskId = movedTask.id;
-    }
-
-    // Update the modified task columns
-    newTasks[source.droppableId] = start;
-    newTasks[destination.droppableId] = finish;
+    // Optimistically update the UI
     setTasks(newTasks);
-    // -- END --
 
-    // Send the update to the backend
-    try {
-      await reorderTasks({
-        userId: user.uid,
-        taskId: draggableId,
-        targetPrevTaskId,
-        targetNextTaskId,
-        status: movedTask.status,
-      });
-
-      // Fetch the updated tasks from the backend after the change
-      // NEEDED TO REFRESH THE ORDER OF THE TASKS!!
-      await fetchTasks(user, setTasks);
-    } catch (error) {
-      console.error("Failed to update and move task:", error);
-      setTasks(originalTasks);
-      alert("Failed to move the task. Changes have been reverted.");
+    // Update the backend if changes are required
+    if (updateRequired) {
+      await updateBackend(reorderData, user, setTasks, originalTasks);
     }
   };
 
@@ -107,7 +171,7 @@ const Dashboard = () => {
     });
 
     try {
-      await deleteTask(taskId, user.uid);
+      await deleteTask(taskId);
     } catch (error) {
       console.error("Failed to delete task:", error);
       setTasks(originalTasks);
@@ -140,7 +204,7 @@ const Dashboard = () => {
 
   return (
     <div className="container text-center">
-      <DragDropContext onDragEnd={handleDragEnd}>
+      <DragDropContext onDragEnd={onDragEnd}>
         <Row>
           {Object.entries(tasks).map(([columnId]) => (
             <Col key={columnId} md={4}>

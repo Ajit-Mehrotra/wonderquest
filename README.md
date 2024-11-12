@@ -37,26 +37,29 @@ You can also check out the live version at: [wonderquest.ajitm.com](https://wond
                                      +-----------------+
 
 ## Setup Instructions
-There's some very detailed instructions for both local and production setup and deployment. Check it out [here](/documentation/Setup%20Guide.md).
+Detailed instructions for local setup and production and deployment [here](/documentation/Setup%20Guide.md).
 
 ## Technologies Used
 
 * React: Frontend library for building user interfaces.
-* Vite: Build tool
+* Vite: Build tool & used for testing
 * GCP Auth & Firebase: Backend for authentication and real-time database.
 * Docker: For containerization of app
 * AWS EC2: For hosting the server on a VM
 * Cloudflare: For custom domain and DNS settings
 * React-Bootstrap: For UI components and styling.
 
-## Contributing is not welcome HAHAHA. 
-Jk. Fork the repo, create a new branch, and send in a pull request. You can also tell us if you encounter any bugs by reporting them on our website or github.
+## Contributing. 
+Fork the repo, create a new branch, and send in a pull request. You can also tell us if you encounter any bugs by reporting them on our website or github.
 
 A couple things on the todo list:
-- [ ] Fix API endpoints to not include UserID in URL and take them from the auth-token instead (should be done on some, just need to do the rest)
+- [ ] Refactor smelly code in frontend --> custom hooks & Dashboard dragging feature could use some work --> add more unit tests as code gets refactored
+- [ ] Refactor smelly code in backend --> most important with the tasks, updating and re-ordering
+- [ ] Accessibility for frontend --> add missing labels for form elements, buttons need to be more compliant (see axe devtools for details)
+- [ ] Refactor landing page (do last, not really important)
 - [ ] Replace React-Beautiful-DnD with another dependency that works better with latest React (had to remove React Strict Mode after updating react version for deployment)
 - [ ] Seperate Nginx reverse proxy container from the frontend docker just for better seperation. We use ngix for both serving static content and then also as a reverse proxy.
-- [ ] Make it easier to deploy because there are so many things you need to setup for a relatively simple application, but I guess that's normal.
+- [ ] Make it easier to deploy because there are so many things you need to setup for a relatively simple application. Look into [SED](https://www.grymoire.com/Unix/Sed.html)
 
 ## License
 

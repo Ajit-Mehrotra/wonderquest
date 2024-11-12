@@ -2,7 +2,7 @@ import React, { useContext, useState } from "react";
 import { Card, Button, Badge, Collapse } from "react-bootstrap";
 import { FaCaretLeft, FaEdit, FaTrash } from "react-icons/fa";
 import EditTaskModal from "./EditTaskModal";
-import { updateTaskStatus } from "services/api";
+import { updateTask } from "services/api";
 import DeleteConfirmationModal from "./DeleteConfirmationModal";
 import { AuthContext } from "context/AuthContext";
 import { TaskContext } from "context/TaskContext";
@@ -32,7 +32,7 @@ function TaskCard({ provided, task, onDeleteTask }) {
       return;
     }
     try {
-      await updateTaskStatus(editingTask.id, user.uid, editingTask);
+      await updateTask(editingTask.id, editingTask);
       setTasks((prevTasks) => {
         const newTasks = { ...prevTasks };
         for (let columnId in newTasks) {
@@ -118,10 +118,14 @@ function TaskCard({ provided, task, onDeleteTask }) {
       {beingDeleted && (
         <DeleteConfirmationModal
           show={!!beingDeleted}
-          taskName={task.name}
           onConfirm={() => onDeleteTask(task.id, task.status)}
           onCancel={() => setBeingDeleted(false)}
-        />
+        >
+          <p>
+            Are you sure you want to delete the task{" "}
+            <strong>{task.name}</strong>?
+          </p>
+        </DeleteConfirmationModal>
       )}
     </div>
   );

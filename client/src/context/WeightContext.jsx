@@ -14,7 +14,7 @@ export const WeightsProvider = ({ children }) => {
       if (authLoading) return;
       if (user) {
         try {
-          const fetchedWeights = await fetchUserWeights(user.uid);
+          const fetchedWeights = await fetchUserWeights();
           setWeights(fetchedWeights);
         } catch (error) {
           console.error("Failed to fetch user weights", error);

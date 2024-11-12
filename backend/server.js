@@ -8,6 +8,7 @@ import { verifyToken } from "./utils/authTokenMiddleware.js";
 import userRouter from "./routes/userRoutes.js";
 import taskRouter from "./routes/taskRoutes.js";
 
+// Load environment variables
 if (process.env.NODE_ENV !== "production") {
   dotenv.config();
 }
@@ -17,44 +18,43 @@ const PORT = process.env.PORT || 3001;
 const CORS_ORIGIN = process.env.CORS_ORIGIN || "http://localhost:3000";
 let sslOptions;
 
-//Comment out for HTTP
-try {
-  sslOptions = {
-    key: fs.readFileSync("/etc/letsencrypt/live/[YOUR DOMAIN]/privkey.pem"),
-    cert: fs.readFileSync("/etc/letsencrypt/live/[YOUR DOMAIN]/fullchain.pem"),
-  };
-} catch (error) {
-  console.error("Failed to load SSL certificates:", error);
-  process.exit(1); // Exit the app if the certificates cannot be loaded
+// Check for SSL files only in production
+if (process.env.NODE_ENV === "production") {
+  try {
+    sslOptions = {
+      key: fs.readFileSync(process.env.SSL_KEY_PATH),
+      cert: fs.readFileSync(process.env.SSL_CERT_PATH),
+    };
+    console.log("SSL certificates loaded.");
+  } catch (error) {
+    console.error("Failed to load SSL certificates:", error);
+    process.exit(1);
+  }
 }
 
-// Configure CORS to allow requests from your frontend
+// Allow requests from frontend
 app.use(
   cors({
-    origin: CORS_ORIGIN, // Allow requests from your frontend URL
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE", // Allowed methods
-    credentials: true, // Allow credentials
+    origin: CORS_ORIGIN,
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    credentials: true,
   })
 );
 
 app.use(express.json());
 
-// Protect routes with the verifyToken middleware
-app.use("/api", verifyToken); // Apply to all /api routes
+// Middleware and routes
+app.use("/api", verifyToken);
 app.use("/api/users", userRouter);
 app.use("/api/tasks", taskRouter);
-console.log("Routes added");
 
-// app.get("/api/test", (req, res) => {
-//   res.send("CORS is configured correctly!");
-// });
-
-//Use for HTTP, comment out for HTTPS
-// app.listen(PORT, () => {
-//   console.log(`Server running on port ${PORT}`);
-// });
-
-//Use for HTTPS, comment out for HTTP
-https.createServer(sslOptions, app).listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+// if SSL files are loaded, create an HTTPS server, otherwise create HTTP
+if (sslOptions) {
+  https.createServer(sslOptions, app).listen(PORT, () => {
+    console.log(`HTTPS server running`);
+  });
+} else {
+  app.listen(PORT, () => {
+    console.log(`HTTP server running on port ${PORT}`);
+  });
+}

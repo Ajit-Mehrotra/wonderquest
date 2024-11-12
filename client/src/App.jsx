@@ -17,6 +17,8 @@ import { TaskProvider } from "context/TaskContext";
 import { WeightsProvider } from "context/WeightContext";
 import { ThemeProvider } from "context/ThemeContext";
 
+//TODO: Change some providers to use custom hooks instead for greater flexibility
+
 // is able to access the context because Protected Route is a child of the UserProvider function below.
 function UserRoute({ children }) {
   const { user } = useContext(AuthContext);

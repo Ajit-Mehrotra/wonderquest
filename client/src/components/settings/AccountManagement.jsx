@@ -28,7 +28,7 @@ export default function AccountManagement() {
 
   const handleDeleteAccount = async () => {
     try {
-      await deleteUserAccount(user.uid);
+      await deleteUserAccount();
       setNotification({
         type: "success",
         message: "Account deleted successfully!",

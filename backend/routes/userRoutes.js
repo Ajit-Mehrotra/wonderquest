@@ -1,8 +1,7 @@
 import {
   getUserProfile,
   createUser,
-  updateTaskWeights,
-  getTaskWeights,
+
   updateDisplayName,
   deleteUser,
   updateUserEmail,
@@ -11,23 +10,26 @@ import {
 import express from "express";
 const router = express.Router();
 
-// Route to update user's display name
-router.patch("/user-profile/email", updateUserEmail);
-
-router.get("/user-profile", getUserProfile);
-
-// Route to sign up a new user
+/**------------------------------------------------------------------------
+ *                        CRUD: Creating User
+ *------------------------------------------------------------------------**/
 router.post("/signup", createUser);
 
-// Route to update user's display name
-router.patch("/:userId", updateDisplayName);
+/**------------------------------------------------------------------------
+ *                        CRUD: Reading User
+ *------------------------------------------------------------------------**/
+router.get("/user-profile", getUserProfile);
 
-router.delete("/:userId", deleteUser);
+/**------------------------------------------------------------------------
+ *                        CRUD: Updating User
+ *------------------------------------------------------------------------**/
 
-// Route to get user's prioritization weights
-router.get("/:userId/weights", getTaskWeights);
+router.patch("/user-profile/displayName", updateDisplayName);
+router.patch("/user-profile/email", updateUserEmail);
 
-// Route to update user's prioritization weights
-router.patch("/:userId/weights", updateTaskWeights);
+/**------------------------------------------------------------------------
+ *                        CRUD: Deleting User
+ *------------------------------------------------------------------------**/
+router.delete("/delete", deleteUser);
 
 export default router;

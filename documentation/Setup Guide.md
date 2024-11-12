@@ -15,46 +15,65 @@ $ git clone <repository-url>
 $ cd <project-folder>
 ```
 
-### Local Setup - Environment Variables
+## Local Setup 
+### Environment Variables
 
 Create a .env file for both backend and frontend to store sensitive data.
 
-Just a reminder, just enter the raw text for env variables :)
-
 **Backend .env:**
 ```sh
+# General
 NODE_ENV=development
 PORT=3001
 CORS_ORIGIN=http://localhost:3000
+
+# SSL Certificates
+SSL_KEY_PATH=
+SSL_CERT_PATH=
+
+# Firebase Admin SDK (see docs for more info)
+TYPE=
+PROJECT_ID=
+PRIVATE_KEY_ID=
+PRIVATE_KEY=
+CLIENT_EMAIL=
+CLIENT_ID=
+AUTH_URI=
+TOKEN_URI=
+AUTH_PROVIDER_X509_CERT_URL=
+CLIENT_X509_CERT_URL=
+UNIVERSE_DOMAIN=
 ```
+General
 * `NODE_ENV` --> production or development
 * `PORT` --> whatever port you're running the backend server on
 * `CORS_ORIGIN` --> whitelisting who can call the API
-  
 
-**Additional Backend Setup**
-> **REQUIRED:**  The serviceAccountKey file contains credentials for a service account, which is a special Google account that grants your backend server secure access to Firebase services. It allows your backend to interact with Firebase Admin SDK to perform privileged operations, like managing user roles or accessing Firestore without relying on individual user authentication.
+In development env, you can leave the ssl paths blank. 
+
+Firebase Admin SDK:
 > 
 1. Generate a service account key for Firebase access via Firebase Admin SDK
    1. Go to your Firebase ***Project*** Settings
    2. Navigate to the `Service accounts` tab 
    3. Click `Generate new private key`
    4. This should download a JSON file containing the service account key
-2. Move that file to the backend in the root directory of the `backend` folder. Make sure it's called `serviceAccountKey.json` 
+   5. Copy all of the information to the env file
 
 **Frontend .env:**
 ```sh
 VITE_APP_BACKEND_SERVER_URL=http://localhost:3001
 
-VITE_APP_FIREBASE_AUTH_API_KEY=<your-firebase-api-key>
-VITE_APP_FIREBASE_AUTH_DOMAIN=<your-firebase-auth-domain>
-VITE_APP_FIREBASE_AUTH_PROJECT_ID=<your-firebase-auth-project-id>
-VITE_APP_FIREBASE_AUTH_STORAGE_BUCKET=<your-firebase-auth-storage-bucket>
-VITE_APP_FIREBASE_AUTH_MESSAGING_SENDER_ID=<your-firebase-auth-messaging-sender-id>
-VITE_APP_FIREBASE_AUTH_APP_ID=<your-firebase-auth-app-id>
-VITE_APP_FIREBASE_AUTH_MEASUREMENT_ID=<your-firebase-auth-measurement-id>
+VITE_APP_FIREBASE_AUTH_API_KEY=
+VITE_APP_FIREBASE_AUTH_DOMAIN=
+VITE_APP_FIREBASE_AUTH_PROJECT_ID=
+VITE_APP_FIREBASE_AUTH_STORAGE_BUCKET=
+VITE_APP_FIREBASE_AUTH_MESSAGING_SENDER_ID=
+VITE_APP_FIREBASE_AUTH_APP_ID=
+VITE_APP_FIREBASE_AUTH_MEASUREMENT_ID=
+
 ```
-Just in case, a reminder, don't actually include the carrot brackets ("<" and ">") in the env file. Just enter the raw text/data.
+
 
 * `VITE_APP_BACKEND_SERVER_URL` --> the url for the backend server. Used to send API requests to the backend from the frontend. 
 * The rest can be found by going to your Firebase ***Project*** settings:
@@ -63,39 +82,20 @@ Just in case, a reminder, don't actually include the carrot brackets ("<" and ">
   * Copy the values from the firebaseConfig object to the .env file 
 
 
-## Local Backend Setup
+###  Install Dependencies & Run
 
-**Install dependencies**
+
+**Backend**
 ```sh
 $ cd backend
 $ npm install
+$ dotenvx run -- npm start
 ```
-
-**HTTP Setup - Backend Server**
-1. Go to `backend/server.js`.
-2. Comment out the `try/catch` for the `sslOptions` variable. 
-3. Comment out the `https.createServer(sslOptions, app)...` block
-4. Uncomment the `app.listen(PORT,)...` block of code
-
-**Run server locally**
-
-```sh
-$ npm start
-```
-
-## Local Frontend Setup
-
-**Install dependencies**
-
+**Frontend/Client**
 ```sh
 $ cd client
 $ npm install
-```
-
-**Run frontend locally**
-
-```sh
-$ npm run dev
+$ npm start
 ```
 
 ## Deployment Guide
@@ -109,10 +109,6 @@ The repository contains Dockerfiles for both client and backend.
 3. Clone the repo on the host server
 4. Basic Docker Knowledge
 5. Basic vim knowledge. Here's a good [cheat sheet](https://opensource.com/downloads/cheat-sheet-vim)
-
-
-I also made this [Docker Essentials Guide](./Docker%20Essentials.md) and [Vim Essentials Guide](./Vim%20Essentials.md). It's not all-encompassing, but it should provide some context.
-
 
 
 ### Deployment Steps
@@ -154,27 +150,17 @@ $ cd <project-folder>
 
 This guide assumes that you have bought your domain, but have not set up SSL to enable HTTPS. We'll be walking through that process later in the guide. Just make sure to have that URL ready as we're going to use it in the enviornment variables
 
-The enviornment variables that would be traditionally (in a local enviornment) be an `.env` are in the `compose.yaml` file under `args`. I've created a `template.compose.yaml`. Just delete the `template` part and fill in your details.
+The enviornment variables that would be traditionally (in a local enviornment) be an `.env` are in the `compose.yaml` file under `args`. I've created a `compose.yaml`. Fill in your details.
 
-The setup is similar to the setup previously described in the [local enviornment variables setup](#local-setup---environment-variables) except:
+The setup is similar to the setup previously described in the [local enviornment variables setup](#environment-variables) except:
 * You're going to be using the **http** version of your domain (and no port number) instead of localhost:port. 
-* You're going to have to manually create a file called `serviceAccountKey.json` in the `backend` folder
 
-    * ```sh
-        $ cd backend
-        $ touch serviceAccountKey.json
-        $ vim serviceAccountKey.json
-        ``` 
-    * And copy and paste the information in from your computer to the command line manually as you can't move the file from your own machine to the VM directly. You'll run into vim and command line issues here if you're unfamiliar with it.
 
 **HTTP Setup - Backend Server**
 
 In order to have HTTPS, we need to get an SSL certificate. We can't do that unless we have HTTP running properly. The code is different for HTTP and HTTPS and the current code is for HTTPS, not HTTP.
 
-1. Go to `backend/server.js`.
-2. Comment out the `try/catch` for the `sslOptions` variable. 
-3. Comment out the `https.createServer(sslOptions, app)...` block
-4. Uncomment the `app.listen(PORT,)...` block of code
+* Set the enviornment in compose.yaml in the backend to `development` this will enable HTTP.
 
 
 **HTTP Setup - Nginx Configuration**
@@ -266,12 +252,8 @@ Now that we have an SSL certification, we can run HTTPS. Let's set that up.
 
 1. Navigate back to your project directory
 2. Run `docker compose down` 
-3. Navigate to `backend/server.js`.
-4. Uncomment the `try/catch` for the `sslOptions` variable. 
-5. Replace in `[YOUR DOMAIN]` with your actual domain (ex. wonderquest.ajitm.com)
-6. Uncomment the `https.createServer(sslOptions, app)...` block
-7. Comment out the `app.listen(PORT,)...` block of code
-
+3. Change the compose.yaml node enviornment to `production`
+4. Remember to change the domain to https: your domain in the compose yaml file.
 
 **HTTPS Setup - Nginx Configuration**
 

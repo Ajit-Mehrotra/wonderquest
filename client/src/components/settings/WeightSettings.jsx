@@ -19,7 +19,7 @@ export default function WeightSettings() {
     const loadUserWeights = async () => {
       if (user && isMounted) {
         try {
-          const fetchedWeights = await fetchUserWeights(user.uid);
+          const fetchedWeights = await fetchUserWeights();
           if (isMounted) {
             setWeights(fetchedWeights);
             setFormWeights(fetchedWeights);
@@ -48,7 +48,7 @@ export default function WeightSettings() {
     let isMounted = true;
 
     try {
-      await updateUserWeights({ userId: user.uid, weights: formWeights });
+      await updateUserWeights({ weights: formWeights });
       setWeights(formWeights);
 
       if (isMounted) {

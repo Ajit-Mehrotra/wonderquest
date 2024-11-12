@@ -4,34 +4,33 @@ import {
 } from "../utils/helperMethods.js";
 
 import {
-  getTasksFromDB,
   addTaskToDB,
+  getTasksFromDB,
+  getTaskWeightFromDB,
+  getTaskFromDB,
   updateTaskPointersInDB,
   unlinkTaskInDB,
   updateTaskInDB,
-  getTaskFromDB,
+  updateTaskWeightsInDB,
   deleteTaskFromDB,
   deleteAllTasksFromDB,
 } from "../models/taskModel.js";
-import { defaultStatus } from "../config.js";
 
-export const getTasks = async (req, res) => {
-  const userId = req.query.userId;
-  try {
-    const tasks = await getTasksFromDB(userId);
-    res.status(200).json(tasks);
-  } catch (error) {
-    res
-      .status(500)
-      .json({ error: "Failed to fetch tasks", details: error.message });
-  }
-};
+import { defaultStatus, defaultColumns, STATUS_CODE } from "../config.js";
 
+//TODO: smelly code, refactor later
+
+/**------------------------------------------------------------------------
+ *                        CRUD: Creating Tasks
+ *------------------------------------------------------------------------**/
 export const addTask = async (req, res) => {
-  const { userId, task } = req.body; // Expecting userId and task data in the body
+  const userId = req.user.uid;
+  const { task } = req.body; // Expecting userId and task data in the body
 
   if (!userId || !task) {
-    return res.status(400).json({ error: "Missing userId or task data" });
+    return res
+      .status(STATUS_CODE.BAD_REQUEST)
+      .json({ error: "Missing userId or task data" });
   }
 
   try {
@@ -62,23 +61,71 @@ export const addTask = async (req, res) => {
     // Update the references for previous and next tasks
     await updateTaskPointersInDB(userId, prevTask, nextTask, newTaskId);
 
-    res.status(201).json({ message: "Task added successfully", id: newTaskId });
+    res
+      .status(STATUS_CODE.CREATED)
+      .json({ message: "Task added successfully", id: newTaskId });
   } catch (error) {
     res
-      .status(500)
+      .status(STATUS_CODE.INTERNAL_SERVER_ERROR)
       .json({ error: "Failed to add task", details: error.message });
   }
 };
 
+/**------------------------------------------------------------------------
+ *                        CRUD: Reading Tasks
+ *------------------------------------------------------------------------**/
+export const getTasks = async (req, res) => {
+  const userId = req.user.uid;
+  try {
+    const tasks = await getTasksFromDB(userId);
+    res.status(STATUS_CODE.OK).json(tasks);
+  } catch (error) {
+    res
+      .status(STATUS_CODE.INTERNAL_SERVER_ERROR)
+      .json({ error: "Failed to fetch tasks", details: error.message });
+  }
+};
+
+//Task weights are stored in the user collection, not the tasks collection
+export const getTaskWeights = async (req, res) => {
+  const userId = req.user.uid;
+
+  try {
+    const weights = await getTaskWeightFromDB(userId);
+    if (!weights) {
+      throw new Error("Weights data not found for user");
+    }
+    res.status(STATUS_CODE.OK).json(weights);
+  } catch (error) {
+    res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({
+      error: "Failed to fetch weights",
+      details: error.message,
+    });
+  }
+};
+
+/**------------------------------------------------------------------------
+ *                        CRUD: Updating Tasks
+ *------------------------------------------------------------------------**/
+
+/**
+ * @api {patch} /tasks/:taskId Update a task
+ * @apiDescription Updates a task with new values. If the priority has changed, it will re-arrange the task with the new priority.
+ * @apiParam {string} taskId The ID of the task to be updated
+ * @apiParam {object} updates The new values of the task. Can be any combination of the following: title, description, status, priority, ignorePriority, size, value, urgency.
+ */
 export const updateTask = async (req, res) => {
-  const { userId, updates } = req.body; // Expecting userId and task updates in the body
+  const userId = req.user.uid;
+  const { updates } = req.body; // Expecting userId and task updates in the body
   const { taskId } = req.params;
 
   try {
     // Find the task to be updated
     const taskToUpdate = await getTaskFromDB(userId, taskId);
     if (!taskToUpdate) {
-      return res.status(404).json({ error: "Task not found" });
+      return res
+        .status(STATUS_CODE.NOT_FOUND)
+        .json({ error: "Task not found" });
     }
 
     // Update the task with new values
@@ -122,17 +169,34 @@ export const updateTask = async (req, res) => {
 
     await updateTaskInDB(userId, taskId, updatedTask);
 
-    res.status(200).json({ message: "Task updated successfully" });
+    res.status(STATUS_CODE.OK).json({ message: "Task updated successfully" });
   } catch (error) {
     res
-      .status(500)
+      .status(STATUS_CODE.INTERNAL_SERVER_ERROR)
       .json({ error: "Failed to update task", details: error.message });
   }
 };
 
+/**
+ * Reorders a task within a user's task list, either within the same column
+ * or across different columns, updating the task pointers and database
+ * references as needed.
+ *
+ * @param {Object} req - The request object, containing user ID, task ID, and
+ *                        new position details in the request parameters and body.
+ * @param {Object} res - The response object used to send back the appropriate
+ *                        HTTP response.
+ *
+ * The function handles the unlinking of the task from its current position,
+ * determines if the task is moved within the same column or to a different
+ * column, updates task pointers accordingly, and persists changes to the
+ * database. Sends a success response with a message and task ID, or an error
+ * response with details if the operation fails.
+ */
 export const reorderTasks = async (req, res) => {
+  const userId = req.user.uid;
   const { taskId } = req.params;
-  const { userId, targetPrevTaskId, targetNextTaskId, status } = req.body;
+  const { targetPrevTaskId, targetNextTaskId, status } = req.body;
 
   try {
     const draggedTask = await getTaskFromDB(userId, taskId);
@@ -168,7 +232,7 @@ export const reorderTasks = async (req, res) => {
       // Update the references for previous and next tasks
       await updateTaskPointersInDB(userId, prevTask, nextTask, taskId);
 
-      res.status(201).json({
+      res.status(STATUS_CODE.CREATED).json({
         message: "Task moved and inserted successfully",
         id: taskId,
       });
@@ -197,33 +261,100 @@ export const reorderTasks = async (req, res) => {
         ignorePriority: true,
       });
 
-      res.status(200).json({ message: "Task reordered successfully" });
+      res
+        .status(STATUS_CODE.OK)
+        .json({ message: "Task reordered successfully" });
     }
   } catch (error) {
     res
-      .status(500)
+      .status(STATUS_CODE.INTERNAL_SERVER_ERROR)
       .json({ error: "Failed to reorder task", details: error.message });
   }
 };
 
+//Task weights are stored in the user collection, not the tasks collection
+export const updateTaskWeights = async (req, res) => {
+  const userId = req.user.uid;
+  const { urgencyWeight, valueWeight, sizeWeight } = req.body;
+
+  try {
+    // Update weights in the user profile
+    await updateTaskWeightsInDB(userId, urgencyWeight, valueWeight, sizeWeight);
+
+    // Fetch all tasks for the user
+    const tasks = await getTasksFromDB(userId);
+
+    // Initialize task columns
+    const newTasks = defaultColumns();
+
+    //Update Weights, Reset ignorePriority Flag, and Sort tasks by Column Name
+    for (let task of tasks) {
+      // @ts-ignore
+      const { urgency, value, size } = task;
+
+      if (!urgency || !value || !size) {
+        throw new Error("Task is missing urgency, value, or size");
+      }
+
+      const newPriority =
+        urgency.value * urgencyWeight +
+        value.value * valueWeight +
+        size.value * sizeWeight;
+
+      const updatedTask = {
+        ...task,
+        priority: newPriority,
+        ignorePriority: false,
+      };
+
+      // @ts-ignore
+      const taskStatus = updatedTask.status;
+
+      // Add task to the appropriate column by status, if doesn't exist, create it.
+      if (!newTasks[taskStatus]) {
+        newTasks[taskStatus] = [];
+      }
+
+      newTasks[taskStatus].push(updatedTask);
+    }
+
+    await sortTasksByPriority(newTasks, userId);
+
+    res
+      .status(STATUS_CODE.OK)
+      .json({ message: "Weights and tasks updated successfully" });
+  } catch (error) {
+    res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({
+      error: "Failed to update weights and tasks",
+      details: error.message,
+    });
+  }
+};
+
+/**------------------------------------------------------------------------
+ *                        CRUD: Deleting Tasks
+ *------------------------------------------------------------------------**/
+
 export const deleteTask = async (req, res) => {
+  const userId = req.user.uid;
   const { taskId } = req.params;
-  const { userId } = req.body; // Assuming the userId is sent in the request body
 
   try {
     const taskToDelete = await getTaskFromDB(userId, taskId);
 
     if (!taskToDelete) {
-      return res.status(404).json({ error: "Task to delete not found" });
+      return res
+        .status(STATUS_CODE.NOT_FOUND)
+        .json({ error: "Task to delete not found" });
     }
 
     await unlinkTaskInDB(userId, taskToDelete);
     await deleteTaskFromDB(userId, taskId);
 
-    res.status(200).json({ message: "Task deleted successfully" });
+    res.status(STATUS_CODE.OK).json({ message: "Task deleted successfully" });
   } catch (error) {
     res
-      .status(500)
+      .status(STATUS_CODE.INTERNAL_SERVER_ERROR)
       .json({ error: "Failed to delete task", details: error.message });
   }
 };
@@ -232,8 +363,47 @@ export const deleteAllTasks = async (req, res) => {
   const { user_id: userId } = req.user;
   try {
     await deleteAllTasksFromDB(userId);
-    res.status(200).send({ message: "All tasks deleted successfully" });
+    res
+      .status(STATUS_CODE.OK)
+      .send({ message: "All tasks deleted successfully" });
   } catch (error) {
-    res.status(500).send({ message: `Failed to delete tasks ${error}` });
+    res
+      .status(STATUS_CODE.INTERNAL_SERVER_ERROR)
+      .send({ message: `Failed to delete tasks ${error}` });
+  }
+};
+
+/**------------------------------------------------------------------------
+ *                        Helper Functions
+ *------------------------------------------------------------------------**/
+export const sortTasksByPriority = async (tasks, userId) => {
+  // Sort Tasks by Priority, Set new prevTaskIds and nextTaskIds, Send update to Firestore
+  for (let column in tasks) {
+    //get the column of tasks
+    const tasksArray = tasks[column];
+
+    // sort the array by priority
+    tasksArray.sort((a, b) => a.priority - b.priority);
+
+    for (let i = 0; i < tasksArray.length; i++) {
+      const currentTask = tasksArray[i];
+
+      if (i === 0) {
+        currentTask.prevTaskId = null;
+      } else {
+        currentTask.prevTaskId = tasksArray[i - 1].id;
+      }
+      if (i === tasksArray.length - 1) {
+        currentTask.nextTaskId = null;
+      } else {
+        currentTask.nextTaskId = tasksArray[i + 1].id;
+      }
+
+      await updateTaskInDB(userId, tasksArray[i].id, {
+        ...currentTask,
+        prevTaskId: currentTask.prevTaskId,
+        nextTaskId: currentTask.nextTaskId,
+      });
+    }
   }
 };

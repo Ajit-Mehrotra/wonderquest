@@ -28,7 +28,7 @@ export const fetchTasks = async (user, setTasks) => {
   if (!user) return;
   try {
     console.debug("User exists. Trying to fetch tasks from API");
-    const fetchedTasks = await fetchTasksFromApi(user.uid);
+    const fetchedTasks = await fetchTasksFromApi();
     console.debug("Fetched Tasks from API");
 
     // Initialize task buckets (columns)
