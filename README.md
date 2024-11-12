@@ -49,13 +49,14 @@ Detailed instructions for local setup and production and deployment [here](/docu
 * Cloudflare: For custom domain and DNS settings
 * React-Bootstrap: For UI components and styling.
 
-## Contributing. 
+## Contributing & Todo. 
 Fork the repo, create a new branch, and send in a pull request. You can also tell us if you encounter any bugs by reporting them on our website or github.
 
 A couple things on the todo list:
 - [ ] Refactor smelly code in frontend --> custom hooks & Dashboard dragging feature could use some work --> add more unit tests as code gets refactored
 - [ ] Refactor smelly code in backend --> most important with the tasks, updating and re-ordering
 - [ ] Accessibility for frontend --> add missing labels for form elements, buttons need to be more compliant (see axe devtools for details)
+- [ ] CSS needs to be updated. Kinda awkward working with Bootstrap + custom CSS (makes it worse that custom CSS has no variables, so need to add that too at minimum)
 - [ ] Refactor landing page (do last, not really important)
 - [ ] Replace React-Beautiful-DnD with another dependency that works better with latest React (had to remove React Strict Mode after updating react version for deployment)
 - [ ] Seperate Nginx reverse proxy container from the frontend docker just for better seperation. We use ngix for both serving static content and then also as a reverse proxy.
